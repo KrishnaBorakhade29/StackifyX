@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <link rel="icon" type="image/jpeg" href="/stackifyx-logo.jpg">
+    <!-- Anti-flash: apply saved theme before first paint -->
+    <script>if(localStorage.getItem('devcraft-theme')==='light')document.documentElement.classList.add('light');</script>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %> — StackifyX</title>
+    <link rel="stylesheet" href="/css/style.css">
+  </head>
+<body>
+  <%- include('../partials/navbar') %>
+  <div class="page-wrapper">
+    <div class="container" style="padding-top:48px; padding-bottom:64px;">
+
+      <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:32px; flex-wrap:wrap; gap:16px;">
+        <div>
+          <a href="/dashboard" style="font-size:0.85rem; color:var(--text-muted);">← Dashboard</a>
+          <h1 style="margin-top:12px;">My Inquiries</h1>
+          <p>Track the status of your project requests</p>
+        </div>
+        <a href="/inquiries/new" class="btn btn-primary">+ New Request</a>
+      </div>
+
+      <%- include('../partials/flash') %>
+
+      <% if (inquiries && inquiries.length > 0) { %>
+        <div style="display:flex; flex-direction:column; gap:16px;">
+          <% inquiries.forEach(inq => { %>
+            <div class="card" style="padding:24px;">
+              <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:16px; flex-wrap:wrap;">
+                <div style="flex:1;">
+                  <div style="display:flex; align-items:center; gap:12px; margin-bottom:8px; flex-wrap:wrap;">
+                    <h3 style="font-size:1.05rem;"><%= inq.title %></h3>
+                    <span class="badge badge-<%= inq.status %>"><%= inq.status %></span>
+                    <span class="badge" style="background:var(--bg-elevated); color:var(--text-muted);"><%= inq.category %></span>
+                  </div>
+                  <p style="font-size:0.9rem; color:var(--text-muted); margin-bottom:12px; line-height:1.6;">
+                    <%= inq.description.substring(0, 200) %><%= inq.description.length > 200 ? '...' : '' %>
+                  </p>
+                  <div style="display:flex; gap:20px; flex-wrap:wrap; font-size:0.82rem; color:var(--text-muted);">
+                    <span>💰 Budget: <strong style="color:var(--accent-blue); font-family:var(--font-mono);">₹<%= inq.budget.toLocaleString('en-IN') %></strong></span>
+                    <span>📅 Timeline: <strong style="color:var(--text-secondary);"><%= inq.timeline %></strong></span>
+                    <span>🕐 Submitted: <strong style="color:var(--text-secondary);"><%= new Date(inq.createdAt).toLocaleDateString('en-IN', { dateStyle: 'medium' }) %></strong></span>
+                  </div>
+                </div>
+              </div>
+              <% if (inq.adminNote) { %>
+                <div style="margin-top:16px; padding:14px 16px; background:var(--bg-elevated); border-radius:var(--radius-sm); border-left:3px solid var(--accent-blue);">
+                  <div style="font-size:0.75rem; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; color:var(--accent-blue); margin-bottom:6px;">Admin Note</div>
+                  <p style="font-size:0.88rem; color:var(--text-secondary); margin:0;"><%= inq.adminNote %></p>
+                </div>
+              <% } %>
+              <% if (inq.techStack && inq.techStack.length > 0) { %>
+                <div style="margin-top:12px; display:flex; gap:6px; flex-wrap:wrap;">
+                  <% inq.techStack.forEach(t => { %>
+                    <span style="padding:3px 10px; background:var(--bg-elevated); border:1px solid var(--border); border-radius:100px; font-size:0.75rem; color:var(--text-muted); font-family:var(--font-mono);"><%= t %></span>
+                  <% }) %>
+                </div>
+              <% } %>
+            </div>
+          <% }) %>
+        </div>
+      <% } else { %>
+        <div class="empty-state">
+          <div class="empty-state-icon">📋</div>
+          <h3>No Inquiries Yet</h3>
+          <p>Submit a project request and we'll review it within 24 hours.</p>
+          <a href="/inquiries/new" class="btn btn-primary">Submit First Request →</a>
+        </div>
+      <% } %>
+    </div>
+  </div>
+</body>
+</html>

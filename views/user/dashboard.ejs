@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <link rel="icon" type="image/jpeg" href="/stackifyx-logo.jpg">
+    <!-- Anti-flash: apply saved theme before first paint -->
+    <script>if(localStorage.getItem('devcraft-theme')==='light')document.documentElement.classList.add('light');</script>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %> — StackifyX</title>
+    <link rel="stylesheet" href="/css/style.css">
+  </head>
+<body>
+  <%- include('../partials/navbar') %>
+
+  <div class="dashboard-page">
+    <!-- Header -->
+    <div class="dashboard-header">
+      <div class="dashboard-header-inner">
+        <h1>Good <%= new Date().getHours() < 12 ? 'Morning' : new Date().getHours() < 18 ? 'Afternoon' : 'Evening' %>, <%= currentUser.name.split(' ')[0] %> 👋</h1>
+        <p>Here's an overview of your projects and activity</p>
+        <div class="dash-tabs">
+          <span class="dash-tab active">Overview</span>
+          <a href="/inquiries" class="dash-tab">Inquiries</a>
+          <a href="/payments" class="dash-tab">Payments</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="dashboard-body">
+      <%- include('../partials/flash') %>
+
+      <!-- Stats -->
+      <div class="stats-grid">
+        <div class="stat-card blue">
+          <div class="stat-icon">📁</div>
+          <div class="stat-value"><%= stats.total || 0 %></div>
+          <div class="stat-label">Total Projects</div>
+        </div>
+        <div class="stat-card orange">
+          <div class="stat-icon">⚙️</div>
+          <div class="stat-value"><%= stats.inProgress || 0 %></div>
+          <div class="stat-label">In Progress</div>
+        </div>
+        <div class="stat-card green">
+          <div class="stat-icon">✅</div>
+          <div class="stat-value"><%= stats.completed || 0 %></div>
+          <div class="stat-label">Completed</div>
+        </div>
+        <div class="stat-card purple">
+          <div class="stat-icon">💰</div>
+          <div class="stat-value">₹<%= (stats.totalPaid || 0).toLocaleString('en-IN') %></div>
+          <div class="stat-label">Amount Paid</div>
+        </div>
+        <div class="stat-card pink">
+          <div class="stat-icon">📋</div>
+          <div class="stat-value"><%= inquiries.length || 0 %></div>
+          <div class="stat-label">Inquiries Sent</div>
+        </div>
+        <div class="stat-card cyan">
+          <div class="stat-icon">💳</div>
+          <div class="stat-value">₹<%= (stats.totalDue || 0).toLocaleString('en-IN') %></div>
+          <div class="stat-label">Amount Due</div>
+        </div>
+      </div>
+
+      <!-- Quick Actions -->
+      <div class="card" style="margin-bottom:32px;">
+        <div class="card-header">
+          <span class="card-title">Quick Actions</span>
+        </div>
+        <div style="display:flex; gap:12px; flex-wrap:wrap;">
+          <a href="/inquiries/new" class="btn btn-primary">
+            <span>+</span> New Project Request
+          </a>
+          <a href="/inquiries" class="btn btn-secondary">View All Inquiries</a>
+          <a href="/payments" class="btn btn-secondary">Payment History</a>
+        </div>
+      </div>
+
+      <!-- Active Projects -->
+      <div class="section-header">
+        <span class="section-title">Your Projects</span>
+        <% if (allProjects.length > 3) { %>
+          <span style="font-size:0.85rem; color:var(--text-muted);"><%= allProjects.length %> total</span>
+        <% } %>
+      </div>
+
+      <% if (allProjects && allProjects.length > 0) { %>
+        <div class="projects-grid">
+          <% allProjects.forEach(project => { %>
+            <a href="/projects/<%= project._id %>" class="project-card">
+              <div class="project-card-header">
+                <div>
+                  <div class="project-card-title"><%= project.title %></div>
+                  <div class="project-card-category"><%= project.category %></div>
+                </div>
+                <span class="badge badge-<%= project.status.replace(' ', '-') %>">
+                  <%= project.status %>
+                </span>
+              </div>
+
+              <div class="project-card-progress">
+                <div class="project-card-progress-label">
+                  <span>Progress</span>
+                  <span><%= project.progress %>%</span>
+                </div>
+                <div class="progress-bar">
+                  <div class="progress-fill" style="width:<%= project.progress %>%"></div>
+                </div>
+              </div>
+
+              <div class="project-card-footer">
+                <div>
+                  <div class="project-card-price">₹<%= project.price.toLocaleString('en-IN') %></div>
+                  <div style="font-size:0.75rem; color:var(--text-muted); margin-top:2px;">
+                    Paid: ₹<%= (project.amountPaid || 0).toLocaleString('en-IN') %>
+                  </div>
+                </div>
+                <div class="project-card-deadline">
+                  <% if (project.deadline) { %>
+                    📅 <%= new Date(project.deadline).toLocaleDateString('en-IN', { month: 'short', day: 'numeric' }) %>
+                  <% } %>
+                </div>
+              </div>
+            </a>
+          <% }) %>
+        </div>
+      <% } else { %>
+        <div class="empty-state">
+          <div class="empty-state-icon">🚀</div>
+          <h3>No Projects Yet</h3>
+          <p>Submit a project inquiry to get started. We'll review and set it up for you.</p>
+          <a href="/inquiries/new" class="btn btn-primary">Submit Your First Request →</a>
+        </div>
+      <% } %>
+
+      <!-- Recent Inquiries -->
+      <% if (inquiries && inquiries.length > 0) { %>
+        <div style="margin-top:40px;">
+          <div class="section-header">
+            <span class="section-title">Recent Inquiries</span>
+            <a href="/inquiries" style="font-size:0.85rem; color:var(--accent-blue);">View all →</a>
+          </div>
+          <div class="card">
+            <div class="table-wrapper">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Project Title</th>
+                    <th>Budget</th>
+                    <th>Status</th>
+                    <th>Submitted</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% inquiries.forEach(inq => { %>
+                    <tr>
+                      <td style="color:var(--text-primary); font-weight:500;"><%= inq.title %></td>
+                      <td style="font-family:var(--font-mono); color:var(--accent-blue);">₹<%= inq.budget.toLocaleString('en-IN') %></td>
+                      <td><span class="badge badge-<%= inq.status %>"><%= inq.status %></span></td>
+                      <td><%= new Date(inq.createdAt).toLocaleDateString('en-IN') %></td>
+                    </tr>
+                  <% }) %>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      <% } %>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <link rel="icon" type="image/jpeg" href="/stackifyx-logo.jpg">
+    <!-- Anti-flash: apply saved theme before first paint -->
+    <script>if(localStorage.getItem('devcraft-theme')==='light')document.documentElement.classList.add('light');</script>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %> — StackifyX</title>
+    <link rel="stylesheet" href="/css/style.css">
+  </head>
+<body>
+  <%- include('../partials/navbar') %>
+  <div class="page-wrapper">
+    <div class="container" style="padding-top:48px; padding-bottom:64px;">
+      <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:16px; margin-bottom:32px;">
+        <div>
+          <a href="/admin/dashboard" style="font-size:0.85rem; color:var(--text-muted);">← Admin Dashboard</a>
+          <h1 style="margin-top:12px;">Reviews & Ratings</h1>
+          <p><%= reviews.length %> total reviews</p>
+        </div>
+        <% if (avgRating > 0) { %>
+          <div style="text-align:center;">
+            <div style="font-family:var(--font-display); font-size:3rem; font-weight:800; color:var(--accent-orange); line-height:1;"><%= avgRating %></div>
+            <div style="display:flex; gap:2px; justify-content:center; margin:6px 0;">
+              <% for(let i=1;i<=5;i++) { %>
+                <span style="font-size:1.2rem; color:<%= i<=Math.round(avgRating) ? 'var(--accent-orange)' : 'var(--text-muted)' %>;">★</span>
+              <% } %>
+            </div>
+            <div style="font-size:0.8rem; color:var(--text-muted);">Average Rating</div>
+          </div>
+        <% } %>
+      </div>
+      <%- include('../partials/flash') %>
+
+      <% if (reviews && reviews.length > 0) { %>
+        <div style="display:flex; flex-direction:column; gap:16px;">
+          <% reviews.forEach(r => { %>
+            <div class="card">
+              <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:16px; flex-wrap:wrap;">
+                <div>
+                  <div style="display:flex; align-items:center; gap:12px; margin-bottom:8px; flex-wrap:wrap;">
+                    <div style="width:34px; height:34px; background:var(--gradient-primary); border-radius:50%; display:flex; align-items:center; justify-content:center; font-family:var(--font-display); font-weight:700; font-size:0.9rem; color:#fff; flex-shrink:0;">
+                      <%= r.user ? r.user.name.charAt(0).toUpperCase() : '?' %>
+                    </div>
+                    <div>
+                      <div style="font-weight:600; color:var(--text-primary); font-size:0.95rem;"><%= r.user ? r.user.name : 'Unknown' %></div>
+                      <div style="font-size:0.75rem; color:var(--text-muted);">on project: <strong style="color:var(--text-secondary);"><%= r.project ? r.project.title : 'N/A' %></strong></div>
+                    </div>
+                  </div>
+                  <div style="display:flex; gap:2px; margin-bottom:8px;">
+                    <% for(let i=1;i<=5;i++) { %>
+                      <span style="font-size:1.1rem; color:<%= i<=r.rating ? 'var(--accent-orange)' : 'var(--text-muted)' %>;">★</span>
+                    <% } %>
+                  </div>
+                  <% if (r.title) { %><div style="font-weight:700; color:var(--text-primary); margin-bottom:6px;"><%= r.title %></div><% } %>
+                  <p style="font-size:0.9rem; line-height:1.7; color:var(--text-secondary);"><%= r.feedback %></p>
+                </div>
+                <div style="font-size:0.78rem; color:var(--text-muted); white-space:nowrap;">
+                  <%= new Date(r.createdAt).toLocaleDateString('en-IN', {dateStyle:'medium'}) %>
+                </div>
+              </div>
+              <% if (r.communication || r.quality || r.timeliness || r.value) { %>
+                <div style="display:flex; gap:24px; margin-top:16px; padding-top:14px; border-top:1px solid var(--border); flex-wrap:wrap;">
+                  <% [['Communication', r.communication],['Quality', r.quality],['Timeliness', r.timeliness],['Value', r.value]].filter(([,v])=>v).forEach(([label,val]) => { %>
+                    <div>
+                      <div style="font-size:0.7rem; text-transform:uppercase; letter-spacing:0.05em; color:var(--text-muted); font-weight:700; margin-bottom:3px;"><%= label %></div>
+                      <div style="font-size:0.85rem; color:var(--accent-orange);"><%= '★'.repeat(val) %><span style="color:var(--text-muted);"><%= '★'.repeat(5-val) %></span></div>
+                    </div>
+                  <% }) %>
+                </div>
+              <% } %>
+            </div>
+          <% }) %>
+        </div>
+      <% } else { %>
+        <div class="empty-state"><div class="empty-state-icon">⭐</div><h3>No Reviews Yet</h3><p>Reviews will appear after clients complete projects and leave feedback.</p></div>
+      <% } %>
+    </div>
+  </div>
+</body>
+</html>

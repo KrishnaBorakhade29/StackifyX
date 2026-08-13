@@ -1,0 +1,18 @@
+<%# views/partials/flash.ejs %>
+<% if (successMsg && successMsg.length > 0) { %>
+  <div class="alert alert-success" id="flashAlert">
+    <span class="alert-icon">✓</span>
+    <span><%= successMsg[0] %></span>
+    <button class="alert-close" onclick="this.parentElement.remove()">×</button>
+  </div>
+<% } %>
+<% if (errorMsg && errorMsg.length > 0) { %>
+  <div class="alert alert-error" id="flashAlert">
+    <span class="alert-icon">!</span>
+    <span><%= errorMsg[0] %></span>
+    <button class="alert-close" onclick="this.parentElement.remove()">×</button>
+  </div>
+<% } %>
+<script>
+  setTimeout(() => { document.getElementById('flashAlert')?.remove(); }, 5000);
+</script>

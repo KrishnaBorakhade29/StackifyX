@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <head>
+    <link rel="icon" type="image/jpeg" href="/stackifyx-logo.jpg">
+    <!-- Anti-flash: apply saved theme before first paint -->
+    <script>if(localStorage.getItem('devcraft-theme')==='light')document.documentElement.classList.add('light');</script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %> — StackifyX</title>
+    <link rel="stylesheet" href="/css/style.css">
+  </head>
+</head>
+<body>
+  <%- include('../partials/navbar') %>
+
+  <div class="auth-page">
+    <div class="auth-card" style="max-width:520px;">
+      <div class="auth-logo">
+        <img src="/stackifyx-logo.jpg" alt="StackifyX" class="auth-logo-img">
+        <h1>Create Account</h1>
+        <p>Join StackifyX to start your first project</p>
+      </div>
+
+      <%- include('../partials/flash') %>
+
+      <% if (errors && errors.length > 0) { %>
+        <div class="alert alert-error" style="margin-bottom:20px;">
+          <span class="alert-icon">!</span>
+          <div>
+            <% errors.forEach(e => { %><div><%- e.msg %></div><% }) %>
+          </div>
+        </div>
+      <% } %>
+
+      <form action="/auth/register" method="POST" novalidate>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="name">Full Name</label>
+            <input
+              type="text" id="name" name="name"
+              value="<%= formData.name || '' %>"
+              placeholder="John Doe"
+              required autocomplete="name"
+            >
+          </div>
+          <div class="form-group">
+            <label for="phone">Phone (Optional)</label>
+            <input
+              type="tel" id="phone" name="phone"
+              value="<%= formData.phone || '' %>"
+              placeholder="+91 9876543210"
+            >
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="email">Email Address</label>
+          <input
+            type="email" id="email" name="email"
+            value="<%= formData.email || '' %>"
+            placeholder="you@example.com"
+            required autocomplete="email"
+          >
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="password">Password</label>
+            <input
+              type="password" id="password" name="password"
+              placeholder="Min. 6 characters"
+              required autocomplete="new-password"
+            >
+          </div>
+          <div class="form-group">
+            <label for="confirmPassword">Confirm Password</label>
+            <input
+              type="password" id="confirmPassword" name="confirmPassword"
+              placeholder="Repeat password"
+              required autocomplete="new-password"
+            >
+          </div>
+        </div>
+
+        <div style="margin:20px 0; padding:14px 16px; background:var(--bg-elevated); border-radius:var(--radius-sm); border:1px solid var(--border);">
+          <label style="display:flex; align-items:flex-start; gap:10px; cursor:pointer; text-transform:none; letter-spacing:0;">
+            <input type="checkbox" name="agree" required style="width:auto; margin-top:3px; accent-color:var(--accent-blue);">
+            <span style="font-size:0.85rem; color:var(--text-muted); font-weight:400;">
+              I agree to the <a href="#" style="color:var(--accent-blue);">Terms of Service</a> and <a href="#" style="color:var(--accent-blue);">Privacy Policy</a>
+            </span>
+          </label>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-block btn-lg">
+          Create Account →
+        </button>
+      </form>
+
+      <div style="text-align:center; margin-top:24px; font-size:0.9rem; color:var(--text-muted);">
+        Already have an account? <a href="/auth/login" style="color:var(--accent-blue); font-weight:600;">Sign in</a>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

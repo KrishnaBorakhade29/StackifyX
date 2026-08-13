@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <link rel="icon" type="image/jpeg" href="/stackifyx-logo.jpg">
+    <!-- Anti-flash: apply saved theme before first paint -->
+    <script>if(localStorage.getItem('devcraft-theme')==='light')document.documentElement.classList.add('light');</script>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %> — StackifyX</title>
+    <link rel="stylesheet" href="/css/style.css">
+  </head>
+<body>
+  <%- include('../partials/navbar') %>
+  <div class="page-wrapper">
+    <div class="container" style="padding-top:48px; padding-bottom:64px;">
+      <div style="margin-bottom:32px;">
+        <a href="/dashboard" style="font-size:0.85rem; color:var(--text-muted);">← Dashboard</a>
+        <h1 style="margin-top:12px;">Payment History</h1>
+        <p>All your transactions in one place</p>
+      </div>
+      <%- include('../partials/flash') %>
+      <div class="card">
+        <% if (payments && payments.filter(p=>p.status==='captured').length > 0) { %>
+          <div class="table-wrapper">
+            <table>
+              <thead><tr><th>Project</th><th>Amount</th><th>Order ID</th><th>Payment ID</th><th>Status</th><th>Date</th></tr></thead>
+              <tbody>
+                <% payments.forEach(p => { %>
+                  <tr>
+                    <td style="color:var(--text-primary); font-weight:500;"><%= p.project ? p.project.title : 'N/A' %></td>
+                    <td style="font-family:var(--font-mono); color:var(--accent-blue); font-weight:600;">₹<%= (p.amount/100).toLocaleString('en-IN') %></td>
+                    <td style="font-family:var(--font-mono); font-size:0.78rem;"><%= p.razorpayOrderId || '-' %></td>
+                    <td style="font-family:var(--font-mono); font-size:0.78rem;"><%= p.razorpayPaymentId || '-' %></td>
+                    <td><span class="badge badge-<%= p.status === 'captured' ? 'completed' : p.status === 'failed' ? 'cancelled' : 'pending' %>"><%= p.status %></span></td>
+                    <td><%= new Date(p.createdAt).toLocaleDateString('en-IN', {dateStyle:'medium'}) %></td>
+                  </tr>
+                <% }) %>
+              </tbody>
+            </table>
+          </div>
+        <% } else { %>
+          <div class="empty-state">
+            <div class="empty-state-icon">💳</div>
+            <h3>No Payments Yet</h3>
+            <p>Your payment history will appear here once you make a payment.</p>
+          </div>
+        <% } %>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

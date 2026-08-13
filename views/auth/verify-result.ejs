@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <link rel="icon" type="image/jpeg" href="/stackifyx-logo.jpg">
+    <!-- Anti-flash: apply saved theme before first paint -->
+    <script>if(localStorage.getItem('devcraft-theme')==='light')document.documentElement.classList.add('light');</script>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %> — StackifyX</title>
+    <link rel="stylesheet" href="/css/style.css">
+  </head>
+<body>
+  <%- include('../partials/navbar') %>
+  <div class="auth-page">
+    <div class="auth-card" style="text-align:center;">
+
+      <% if (success) { %>
+        <div style="font-size:4rem;margin-bottom:20px;animation:pop 0.4s ease;">🎉</div>
+        <h1 style="font-size:1.7rem;margin-bottom:12px;color:var(--accent-green);">Email Verified!</h1>
+        <p style="color:var(--text-muted);margin-bottom:28px;line-height:1.7;">
+          Your account is now active. You're all set to sign in and start submitting projects!
+        </p>
+        <a href="/auth/login" class="btn btn-primary btn-lg">Sign In Now →</a>
+
+      <% } else { %>
+        <div style="font-size:4rem;margin-bottom:20px;">⏰</div>
+        <h1 style="font-size:1.7rem;margin-bottom:12px;color:var(--accent-red);">Link Expired</h1>
+        <p style="color:var(--text-muted);margin-bottom:28px;line-height:1.7;max-width:340px;margin-left:auto;margin-right:auto;">
+          <%= message %>
+        </p>
+        <a href="/auth/register" class="btn btn-primary" style="margin-right:10px;">Try Again</a>
+        <a href="/auth/login" class="btn btn-secondary">Sign In</a>
+      <% } %>
+
+    </div>
+  </div>
+  <style>
+    @keyframes pop {
+      0%   { transform: scale(0.5); opacity:0; }
+      70%  { transform: scale(1.2); }
+      100% { transform: scale(1);   opacity:1; }
+    }
+  </style>
+  <% if (success) { %>
+  <script>
+    // Auto-redirect to login after 4 seconds
+    setTimeout(() => window.location.href = '/auth/login', 4000);
+  </script>
+  <% } %>
+</body>
+</html>

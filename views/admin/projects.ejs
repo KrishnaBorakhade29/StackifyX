@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <link rel="icon" type="image/jpeg" href="/stackifyx-logo.jpg">
+    <!-- Anti-flash: apply saved theme before first paint -->
+    <script>if(localStorage.getItem('devcraft-theme')==='light')document.documentElement.classList.add('light');</script>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %> — StackifyX</title>
+    <link rel="stylesheet" href="/css/style.css">
+  </head>
+<body>
+  <%- include('../partials/navbar') %>
+  <div class="page-wrapper">
+    <div class="container" style="padding-top:48px; padding-bottom:64px;">
+      <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:16px; margin-bottom:32px;">
+        <div>
+          <a href="/admin/dashboard" style="font-size:0.85rem; color:var(--text-muted);">← Admin Dashboard</a>
+          <h1 style="margin-top:12px;">Manage Projects</h1>
+          <p><%= total %> total projects</p>
+        </div>
+        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+          <% ['','pending','in-progress','review','completed','cancelled'].forEach(s => { %>
+            <a href="/admin/projects<%= s ? '?status='+s : '' %>"
+               class="btn btn-sm <%= status === s ? 'btn-primary' : 'btn-secondary' %>">
+              <%= s || 'All' %>
+            </a>
+          <% }) %>
+        </div>
+      </div>
+
+      <%- include('../partials/flash') %>
+
+      <div class="card">
+        <% if (projects && projects.length > 0) { %>
+          <div class="table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th>Project</th>
+                  <th>Client</th>
+                  <th>Price</th>
+                  <th>Progress</th>
+                  <th>Status</th>
+                  <th>Payment</th>
+                  <th>Deadline</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% projects.forEach(p => { %>
+                  <tr>
+                    <td>
+                      <div style="font-weight:600; color:var(--text-primary); max-width:200px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;"><%= p.title %></div>
+                      <div style="font-size:0.75rem; color:var(--text-muted); margin-top:2px;"><%= p.category %></div>
+                    </td>
+                    <td>
+                      <div style="font-size:0.88rem; color:var(--text-primary);"><%= p.user ? p.user.name : 'N/A' %></div>
+                      <div style="font-size:0.75rem; color:var(--text-muted);"><%= p.user ? p.user.email : '' %></div>
+                    </td>
+                    <td style="font-family:var(--font-mono); color:var(--accent-blue); font-weight:600;">₹<%= p.price.toLocaleString('en-IN') %></td>
+                    <td style="min-width:120px;">
+                      <div style="display:flex; align-items:center; gap:8px;">
+                        <div class="progress-bar" style="flex:1; height:6px;"><div class="progress-fill" style="width:<%= p.progress %>%"></div></div>
+                        <span style="font-size:0.75rem; color:var(--text-muted); white-space:nowrap; font-family:var(--font-mono);"><%= p.progress %>%</span>
+                      </div>
+                    </td>
+                    <td><span class="badge badge-<%= p.status.replace(' ','-') %>"><%= p.status %></span></td>
+                    <td>
+                      <span class="badge badge-<%= p.paymentStatus === 'paid' ? 'completed' : p.paymentStatus === 'partial' ? 'in-progress' : 'pending' %>"><%= p.paymentStatus %></span>
+                    </td>
+                    <td style="font-size:0.82rem; color:var(--text-secondary); white-space:nowrap;">
+                      <%= p.deadline ? new Date(p.deadline).toLocaleDateString('en-IN', {month:'short', day:'numeric', year:'numeric'}) : '—' %>
+                    </td>
+                    <td>
+                      <a href="/admin/projects/<%= p._id %>" class="btn btn-secondary btn-sm">Manage →</a>
+                    </td>
+                  </tr>
+                <% }) %>
+              </tbody>
+            </table>
+          </div>
+          <% if (totalPages > 1) { %>
+            <div class="pagination">
+              <% for(let i=1; i<=totalPages; i++) { %>
+                <a href="/admin/projects?page=<%= i %><%= status ? '&status='+status : '' %>" class="page-btn <%= currentPage === i ? 'active' : '' %>"><%= i %></a>
+              <% } %>
+            </div>
+          <% } %>
+        <% } else { %>
+          <div class="empty-state">
+            <div class="empty-state-icon">🏗️</div>
+            <h3>No Projects Found</h3>
+            <p>Convert accepted inquiries into projects to see them here.</p>
+          </div>
+        <% } %>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <link rel="icon" type="image/jpeg" href="/stackifyx-logo.jpg">
+    <!-- Anti-flash: apply saved theme before first paint -->
+    <script>if(localStorage.getItem('devcraft-theme')==='light')document.documentElement.classList.add('light');</script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    <link rel="stylesheet" href="/css/style.css">
+    <meta name="description" content="Tell us what you want built. We stack the right people and tech to ship it — with live progress, milestone payments, and direct chat.">
+  </head>
+<body>
+  <%- include('partials/navbar') %>
+
+  <!-- Hero -->
+  <section class="landing-hero">
+    <div style="max-width:800px;">
+      <div class="hero-eyebrow">
+        <span>◆</span>
+        <span>Idea in, product out</span>
+      </div>
+      <h1 class="hero-title">
+        Describe it once.<br>
+        <span class="highlight">We stack it and ship it.</span>
+      </h1>
+      <p class="hero-desc">
+        Submit your project brief and budget. We assemble the right layers — design, code, database, deployment — and build it end-to-end, with live progress and direct chat the whole way.
+      </p>
+      <div class="hero-cta">
+        <a href="/auth/register" class="btn btn-primary btn-lg">Start a project →</a>
+        <a href="#how" class="btn btn-secondary btn-lg">See how it works</a>
+      </div>
+      <p class="hero-trust">NO UPFRONT CODE REQUIRED · MILESTONE-BASED PAYMENTS · REAL-TIME BUILD CHAT</p>
+
+      <!-- Signature: The Build Stack -->
+      <div class="stack-visual" aria-hidden="true">
+        <div class="stack-layer" style="--layer-color:#2DD4BF;">
+          <span class="stack-layer-tag">UI</span>
+          <div class="stack-layer-body">
+            <div class="stack-layer-title">Interface</div>
+            <div class="stack-layer-desc">What your users touch and see</div>
+          </div>
+          <span class="stack-layer-dot"></span>
+        </div>
+        <div class="stack-layer" style="--layer-color:#38BDF8;">
+          <span class="stack-layer-tag">API</span>
+          <div class="stack-layer-body">
+            <div class="stack-layer-title">Logic &amp; services</div>
+            <div class="stack-layer-desc">The rules that run your product</div>
+          </div>
+          <span class="stack-layer-dot"></span>
+        </div>
+        <div class="stack-layer" style="--layer-color:#FF8A3D;">
+          <span class="stack-layer-tag">DB</span>
+          <div class="stack-layer-body">
+            <div class="stack-layer-title">Data layer</div>
+            <div class="stack-layer-desc">Where everything is stored, safely</div>
+          </div>
+          <span class="stack-layer-dot"></span>
+        </div>
+        <div class="stack-layer" style="--layer-color:#34D399;">
+          <span class="stack-layer-tag">GO</span>
+          <div class="stack-layer-body">
+            <div class="stack-layer-title">Deployed &amp; live</div>
+            <div class="stack-layer-desc">Delivered, tested, ready to use</div>
+          </div>
+          <span class="stack-layer-dot"></span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features -->
+  <section class="section" id="features">
+    <div class="container">
+      <div style="text-align:center; margin-bottom:48px;">
+        <div class="section-label">What we build</div>
+        <h2>One team, every layer of the stack</h2>
+        <p style="color:var(--text-muted); max-width:520px; margin:12px auto;">You don't need to hire a designer, a backend developer, and a DBA separately. Bring the idea — we cover the rest.</p>
+      </div>
+      <div class="features-grid">
+        <div class="feature-card">
+          <div class="feature-icon">🌐</div>
+          <h3>Web applications</h3>
+          <p>Full-stack apps with modern frameworks — responsive, fast, and built to handle real users from day one.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">📱</div>
+          <h3>Mobile apps</h3>
+          <p>Cross-platform apps for iOS and Android, with native-feeling performance and a single shared codebase.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">🔌</div>
+          <h3>APIs &amp; integrations</h3>
+          <p>REST or GraphQL APIs with proper auth, docs, and versioning — ready for your app or a client's to consume.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">🗄️</div>
+          <h3>Database design</h3>
+          <p>Schemas that hold up under load, whether SQL or NoSQL — plus migrations and query tuning as you grow.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">💬</div>
+          <h3>Direct build chat</h3>
+          <p>A live channel with the person building your project — ask questions, share files, get real answers.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">📊</div>
+          <h3>Progress you can see</h3>
+          <p>A dashboard with real milestones and real status, not a weekly email you have to chase.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Process -->
+  <section class="section" id="how" style="background: var(--bg-secondary); border-top:1px solid var(--border); border-bottom:1px solid var(--border);">
+    <div class="container">
+      <div style="text-align:center; margin-bottom:48px;">
+        <div class="section-label">The process</div>
+        <h2>From brief to build in four steps</h2>
+      </div>
+      <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:32px; text-align:center;">
+        <% [
+          {step:'01', icon:'📝', title:'Send the brief', desc:'Tell us what you need, your budget, and your timeline — takes about five minutes.'},
+          {step:'02', icon:'✅', title:'We scope it', desc:'We review it and get back to you within 24 hours with a plan and a price.'},
+          {step:'03', icon:'🏗️', title:'We build it', desc:'Track real milestones as they\'re completed, and chat with the builder directly.'},
+          {step:'04', icon:'🚀', title:'You ship it', desc:'Get your files, deploy links, and leave a review once it\'s done.'}
+        ].forEach(item => { %>
+        <div>
+          <div style="font-family:var(--font-mono); font-size:0.75rem; color:var(--accent-blue); font-weight:700; letter-spacing:0.1em; margin-bottom:12px;"><%= item.step %></div>
+          <div style="font-size:2.5rem; margin-bottom:12px;"><%= item.icon %></div>
+          <h3 style="font-size:1rem; margin-bottom:8px;"><%= item.title %></h3>
+          <p style="font-size:0.85rem; color:var(--text-muted);"><%= item.desc %></p>
+        </div>
+        <% }) %>
+      </div>
+    </div>
+  </section>
+
+  <!-- Why StackifyX -->
+  <section class="section">
+    <div class="container">
+      <div style="text-align:center; margin-bottom:48px;">
+        <div class="section-label">Why StackifyX</div>
+        <h2>Built like an in-house team, priced like a freelancer</h2>
+      </div>
+      <div class="features-grid">
+        <div class="feature-card">
+          <div class="feature-icon">🔒</div>
+          <h3>Pay as you go</h3>
+          <p>Milestone-based payments through Razorpay — you release funds as work is actually delivered.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">⏱️</div>
+          <h3>No black-box waiting</h3>
+          <p>Every project has a live status: pending, in progress, in review, or completed. Always visible.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">⭐</div>
+          <h3>Reviewed, not just delivered</h3>
+          <p>Every completed project can be rated on communication, quality, timeliness, and value.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="section">
+    <div class="container" style="text-align:center;">
+      <h2>Have an idea sitting in your notes app?</h2>
+      <p style="color:var(--text-muted); max-width:450px; margin:12px auto 36px;">Create a free account and send your first project brief today — no cost to submit or scope.</p>
+      <a href="/auth/register" class="btn btn-primary btn-lg">Create free account →</a>
+      <p style="margin-top:16px; font-size:0.85rem; color:var(--text-muted);">Already have an account? <a href="/auth/login">Sign in</a></p>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div style="display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:8px;">
+        <img src="/stackifyx-logo.jpg" alt="StackifyX" style="width:32px;height:32px;border-radius:8px;background:#fff;padding:2px;object-fit:contain;">
+        <span style="font-family:var(--font-display);font-size:1.1rem;font-weight:700;color:var(--text-primary);">Stackify<span style="color:var(--accent-blue);">X</span></span>
+      </div>
+      <p>© <%= new Date().getFullYear() %> StackifyX. One team, every layer of the stack.</p>
+    </div>
+  </footer>
+</body>
+</html>

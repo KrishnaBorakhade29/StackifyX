@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <link rel="icon" type="image/jpeg" href="/stackifyx-logo.jpg">
+    <!-- Anti-flash: apply saved theme before first paint -->
+    <script>if(localStorage.getItem('devcraft-theme')==='light')document.documentElement.classList.add('light');</script>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %> — StackifyX</title>
+    <link rel="stylesheet" href="/css/style.css">
+  </head>
+<body>
+  <%- include('partials/navbar') %>
+  <div style="min-height:100vh; display:flex; align-items:center; justify-content:center; padding-top:var(--nav-height); text-align:center; padding:calc(var(--nav-height)+60px) 24px 60px;">
+    <div>
+      <div style="font-family:var(--font-mono); font-size:6rem; font-weight:800; line-height:1; background:var(--gradient-primary); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; margin-bottom:16px;"><%= code %></div>
+      <h2 style="font-size:1.4rem; margin-bottom:12px;"><%= message %></h2>
+      <p style="color:var(--text-muted); margin-bottom:32px;">The page you're looking for doesn't exist or you don't have permission to view it.</p>
+      <a href="/" class="btn btn-primary">← Go Home</a>
+    </div>
+  </div>
+</body>
+</html>

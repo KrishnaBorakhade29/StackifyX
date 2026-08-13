@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="icon" type="image/jpeg" href="/stackifyx-logo.jpg">
+  <!-- Anti-flash: apply saved theme before first paint -->
+  <script>if(localStorage.getItem('devcraft-theme')==='light')document.documentElement.classList.add('light');</script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %> — StackifyX</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <style>
+    /* ── Dashboard-specific overrides ────────────────────────── */
+    .dash-section { margin-bottom: 28px; }
+
+    /* Chart wrapper: fixed height so Chart.js knows exactly how big to draw */
+    .chart-wrap {
+      position: relative;
+      width: 100%;
+      height: 260px;   /* explicit px — never collapses to 0 */
+    }
+    .chart-wrap canvas {
+      position: absolute;
+      inset: 0;
+    }
+
+    /* Skeleton shimmer while charts load */
+    .chart-skeleton {
+      width: 100%; height: 260px;
+      background: linear-gradient(90deg,
+        var(--bg-elevated) 25%,
+        rgba(99,179,237,0.06) 50%,
+        var(--bg-elevated) 75%);
+      background-size: 400% 100%;
+      border-radius: var(--radius-md);
+      animation: shimmer 1.6s infinite;
+    }
+    @keyframes shimmer { to { background-position: -400% 0; } }
+
+    /* Stat trend pill */
+    .stat-trend {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 3px 8px; border-radius: 100px;
+      font-size: 0.72rem; font-weight: 700; margin-top: 8px;
+    }
+    .stat-trend.up   { background: rgba(52,211,153,0.12); color: var(--accent-green); }
+    .stat-trend.info { background: rgba(99,179,237,0.12);  color: var(--accent-blue); }
+
+    /* Activity row */
+    .activity-row {
+      display: flex; align-items: center; gap: 12px;
+      padding: 13px 0; border-bottom: 1px solid var(--border);
+      text-decoration: none; transition: var(--transition);
+    }
+    .activity-row:last-child { border-bottom: none; }
+    .activity-row:hover { padding-left: 6px; }
+    .activity-row .icon-box {
+      width: 40px; height: 40px; flex-shrink: 0;
+      border-radius: 12px; background: var(--gradient-primary);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.1rem;
+    }
+    .activity-row .meta { flex: 1; min-width: 0; }
+    .activity-row .meta-title {
+      font-size: 0.88rem; font-weight: 600; color: var(--text-primary);
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .activity-row .meta-sub { font-size: 0.74rem; color: var(--text-muted); margin-top: 2px; }
+
+    /* Charts grid: 2 cols on wide, 1 col on mobile */
+    .charts-grid {
+      display: grid;
+      grid-template-columns: 3fr 2fr;
+      gap: 24px;
+    }
+    .activity-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+    }
+    @media (max-width: 900px) {
+      .charts-grid, .activity-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <%- include('../partials/navbar') %>
+
+  <div class="dashboard-page">
+
+    <!-- Header -->
+    <div class="dashboard-header">
+      <div class="dashboard-header-inner">
+        <div style="margin-bottom:6px;">
+          <span style="padding:4px 14px; background:rgba(167,139,250,0.12);
+                       border:1px solid rgba(167,139,250,0.3); border-radius:100px;
+                       font-size:0.72rem; font-weight:700; text-transform:uppercase;
+                       letter-spacing:0.06em; color:var(--accent-purple);">
+            ⚡ Admin Panel
+          </span>
+        </div>
+        <h1>Control Center</h1>
+        <p>Platform overview &amp; management</p>
+        <div class="dash-tabs">
+          <span class="dash-tab active">Overview</span>
+          <a href="/admin/inquiries" class="dash-tab">
+            Inquiries
+            <% if (stats.pendingInquiries > 0) { %>
+              <span style="background:var(--accent-red);color:#fff;border-radius:100px;
+                           padding:1px 7px;font-size:0.68rem;margin-left:5px;">
+                <%= stats.pendingInquiries %>
+              </span>
+            <% } %>
+          </a>
+          <a href="/admin/projects"  class="dash-tab">Projects</a>
+          <a href="/admin/users"     class="dash-tab">Users</a>
+          <a href="/admin/payments"  class="dash-tab">Revenue</a>
+          <a href="/admin/reviews"   class="dash-tab">Reviews</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="dashboard-body">
+      <%- include('../partials/flash') %>
+
+      <!-- ── STATS ROW ──────────────────────────────────────────── -->
+      <div class="dash-section">
+        <div class="stats-grid">
+
+          <div class="stat-card blue">
+            <div class="stat-icon">👥</div>
+            <div class="stat-value"><%= stats.totalUsers || 0 %></div>
+            <div class="stat-label">Total Clients</div>
+            <span class="stat-trend info">↑ registered</span>
+          </div>
+
+          <div class="stat-card purple">
+            <div class="stat-icon">📁</div>
+            <div class="stat-value"><%= stats.totalProjects || 0 %></div>
+            <div class="stat-label">Total Projects</div>
+            <span class="stat-trend info"><%= stats.inProgressProjects || 0 %> active</span>
+          </div>
+
+          <div class="stat-card orange">
+            <div class="stat-icon">⚙️</div>
+            <div class="stat-value"><%= stats.inProgressProjects || 0 %></div>
+            <div class="stat-label">In Progress</div>
+            <span class="stat-trend info">live now</span>
+          </div>
+
+          <div class="stat-card green">
+            <div class="stat-icon">✅</div>
+            <div class="stat-value"><%= stats.completedProjects || 0 %></div>
+            <div class="stat-label">Completed</div>
+            <% if (stats.totalProjects > 0) { %>
+              <span class="stat-trend up">
+                <%= Math.round((stats.completedProjects / stats.totalProjects) * 100) %>% rate
+              </span>
+            <% } %>
+          </div>
+
+          <div class="stat-card cyan">
+            <div class="stat-icon">💰</div>
+            <div class="stat-value" style="font-size:1.5rem;">
+              ₹<%= stats.totalRevenue ? Number(stats.totalRevenue).toLocaleString('en-IN') : '0' %>
+            </div>
+            <div class="stat-label">Total Revenue</div>
+            <span class="stat-trend up">↑ all time</span>
+          </div>
+
+          <div class="stat-card pink">
+            <div class="stat-icon">📋</div>
+            <div class="stat-value"><%= stats.pendingInquiries || 0 %></div>
+            <div class="stat-label">Pending Inquiries</div>
+            <% if (stats.pendingInquiries > 0) { %>
+              <span class="stat-trend" style="background:rgba(248,113,113,0.12);color:var(--accent-red);">
+                needs review
+              </span>
+            <% } %>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ── CHARTS ROW ─────────────────────────────────────────── -->
+      <div class="charts-grid dash-section">
+
+        <!-- Revenue bar chart -->
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-title">📈 Monthly Revenue</div>
+              <div style="font-size:0.78rem;color:var(--text-muted);margin-top:3px;">Last 6 months</div>
+            </div>
+            <a href="/admin/payments"
+               style="font-size:0.8rem;color:var(--accent-blue);font-weight:600;">
+              View all →
+            </a>
+          </div>
+          <!-- Skeleton shown until chart draws -->
+          <div class="chart-skeleton" id="revSkeleton"></div>
+          <div class="chart-wrap" id="revWrap" style="display:none;">
+            <canvas id="revenueChart"></canvas>
+          </div>
+        </div>
+
+        <!-- Status doughnut -->
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-title">📊 Project Status</div>
+              <div style="font-size:0.78rem;color:var(--text-muted);margin-top:3px;">
+                <%= stats.totalProjects || 0 %> total
+              </div>
+            </div>
+            <a href="/admin/projects"
+               style="font-size:0.8rem;color:var(--accent-blue);font-weight:600;">
+              View all →
+            </a>
+          </div>
+          <div class="chart-skeleton" id="statusSkeleton"></div>
+          <div class="chart-wrap" id="statusWrap" style="display:none;">
+            <canvas id="statusChart"></canvas>
+          </div>
+
+          <!-- Status legend with counts -->
+          <div id="statusLegend" style="display:none;margin-top:16px;padding-top:14px;
+                                         border-top:1px solid var(--border);">
+            <% const pending   = Math.max(0, (stats.totalProjects||0) - (stats.inProgressProjects||0) - (stats.completedProjects||0)); %>
+            <% const statusItems = [
+              { label:'Pending',     val: pending,                       color:'#fbbf24' },
+              { label:'In Progress', val: stats.inProgressProjects || 0, color:'#FF8A3D' },
+              { label:'Completed',   val: stats.completedProjects  || 0, color:'#34d399' },
+            ]; %>
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;">
+              <% statusItems.forEach(item => { %>
+                <div style="text-align:center;padding:10px 6px;background:var(--bg-elevated);
+                            border-radius:var(--radius-sm);border:1px solid var(--border);">
+                  <div style="width:10px;height:10px;border-radius:50%;background:<%= item.color %>;
+                              margin:0 auto 6px;"></div>
+                  <div style="font-size:1rem;font-weight:800;color:var(--text-primary);
+                              font-family:var(--font-display);"><%= item.val %></div>
+                  <div style="font-size:0.68rem;color:var(--text-muted);margin-top:2px;">
+                    <%= item.label %>
+                  </div>
+                </div>
+              <% }) %>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ── RECENT ACTIVITY ────────────────────────────────────── -->
+      <div class="activity-grid dash-section">
+
+        <!-- Recent Projects -->
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">🏗️ Recent Projects</span>
+            <a href="/admin/projects" style="font-size:0.8rem;color:var(--accent-blue);font-weight:600;">
+              View all →
+            </a>
+          </div>
+          <% if (recentProjects && recentProjects.length > 0) { %>
+            <% recentProjects.forEach(p => { %>
+              <a href="/admin/projects/<%= p._id %>" class="activity-row">
+                <div class="icon-box">
+                  <%= p.category === 'web' ? '🌐' : p.category === 'mobile' ? '📱' : p.category === 'api' ? '⚡' : p.category === 'database' ? '🗄️' : '💻' %>
+                </div>
+                <div class="meta">
+                  <div class="meta-title"><%= p.title %></div>
+                  <div class="meta-sub">
+                    <%= p.user ? p.user.name : 'N/A' %> &nbsp;·&nbsp;
+                    ₹<%= Number(p.price).toLocaleString('en-IN') %>
+                  </div>
+                </div>
+                <div style="flex-shrink:0;">
+                  <span class="badge badge-<%= p.status.replace(' ','-') %>"><%= p.status %></span>
+                  <div style="margin-top:6px;">
+                    <div style="width:70px;height:4px;background:var(--bg-elevated);border-radius:2px;overflow:hidden;">
+                      <div style="height:100%;width:<%= p.progress %>%;background:var(--gradient-primary);border-radius:2px;"></div>
+                    </div>
+                    <div style="font-size:0.68rem;color:var(--text-muted);text-align:right;margin-top:2px;"><%= p.progress %>%</div>
+                  </div>
+                </div>
+              </a>
+            <% }) %>
+          <% } else { %>
+            <div style="padding:40px 0;text-align:center;color:var(--text-muted);">
+              <div style="font-size:2rem;margin-bottom:8px;opacity:0.4;">🏗️</div>
+              No projects yet
+            </div>
+          <% } %>
+        </div>
+
+        <!-- Recent Users -->
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">👤 New Clients</span>
+            <a href="/admin/users" style="font-size:0.8rem;color:var(--accent-blue);font-weight:600;">
+              View all →
+            </a>
+          </div>
+          <% if (recentUsers && recentUsers.length > 0) { %>
+            <% recentUsers.forEach(u => { %>
+              <div class="activity-row" style="cursor:default;">
+                <div class="icon-box" style="background:var(--gradient-secondary);border-radius:50%;font-family:var(--font-display);font-weight:800;font-size:1rem;color:#fff;">
+                  <%= u.name.charAt(0).toUpperCase() %>
+                </div>
+                <div class="meta">
+                  <div class="meta-title"><%= u.name %></div>
+                  <div class="meta-sub"><%= u.email %></div>
+                </div>
+                <div style="flex-shrink:0;text-align:right;">
+                  <div style="font-size:0.74rem;color:var(--text-muted);">
+                    <%= new Date(u.createdAt).toLocaleDateString('en-IN',{month:'short',day:'numeric'}) %>
+                  </div>
+                  <span class="badge <%= u.isVerified ? 'badge-completed' : 'badge-pending' %>" style="margin-top:4px;font-size:0.65rem;">
+                    <%= u.isVerified ? '✓ verified' : 'unverified' %>
+                  </span>
+                </div>
+              </div>
+            <% }) %>
+          <% } else { %>
+            <div style="padding:40px 0;text-align:center;color:var(--text-muted);">
+              <div style="font-size:2rem;margin-bottom:8px;opacity:0.4;">👤</div>
+              No clients yet
+            </div>
+          <% } %>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Chart.js loaded AFTER page content so it never blocks render -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"
+          onload="initCharts()" defer></script>
+
+  <script>
+    // ── Raw data from server ──────────────────────────────────────────────
+    const monthlyData = <%- monthlyRevenue %> || [];
+    const MONTH_NAMES = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+    // Build last-6-months labels (always show 6 bars even if no data)
+    const last6 = [];
+    const now   = new Date();
+    for (let i = 5; i >= 0; i--) {
+      const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      last6.push({ year: d.getFullYear(), month: d.getMonth() + 1,
+                   label: MONTH_NAMES[d.getMonth()] + ' ' + String(d.getFullYear()).slice(2) });
+    }
+
+    const revenueMap = {};
+    monthlyData.forEach(d => { revenueMap[`${d._id.year}-${d._id.month}`] = d.total; });
+
+    const barLabels = last6.map(m => m.label);
+    const barData   = last6.map(m => {
+      const raw = revenueMap[`${m.year}-${m.month}`] || 0;
+      // Data from MongoDB Payment.amount is stored in paise (×100)
+      return (raw / 100).toFixed(0);
+    });
+
+    // Status doughnut data
+    const pending     = Math.max(0, <%= (stats.totalProjects||0) - (stats.inProgressProjects||0) - (stats.completedProjects||0) %>);
+    const inProgress  = <%= stats.inProgressProjects  || 0 %>;
+    const completed   = <%= stats.completedProjects   || 0 %>;
+    const hasProjects = (pending + inProgress + completed) > 0;
+
+    // ── Chart defaults ────────────────────────────────────────────────────
+    Chart.defaults.color          = '#8888aa';
+    Chart.defaults.font.family    = "'DM Sans', sans-serif";
+    Chart.defaults.animation.duration = 600;
+
+    function initCharts() {
+      drawRevenue();
+      drawStatus();
+    }
+
+    // ── Revenue bar chart ─────────────────────────────────────────────────
+    function drawRevenue() {
+      const skeleton = document.getElementById('revSkeleton');
+      const wrap     = document.getElementById('revWrap');
+      skeleton.style.display = 'none';
+      wrap.style.display     = 'block';
+
+      const ctx = document.getElementById('revenueChart').getContext('2d');
+
+      // Gradient fill
+      const grad = ctx.createLinearGradient(0, 0, 0, 260);
+      grad.addColorStop(0,   'rgba(99,179,237,0.35)');
+      grad.addColorStop(1,   'rgba(99,179,237,0.02)');
+
+      new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: barLabels,
+          datasets: [{
+            label: 'Revenue (₹)',
+            data:  barData,
+            backgroundColor: grad,
+            borderColor:     '#FF8A3D',
+            borderWidth:     2,
+            borderRadius:    8,
+            borderSkipped:   false,
+            hoverBackgroundColor: 'rgba(99,179,237,0.55)',
+          }]
+        },
+        options: {
+          responsive:          true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              backgroundColor: '#1a1a26',
+              borderColor:     'rgba(99,179,237,0.3)',
+              borderWidth:     1,
+              titleColor:      '#e2e8f0',
+              bodyColor:       '#94a3b8',
+              padding:         12,
+              callbacks: {
+                label: ctx => ` ₹${Number(ctx.parsed.y).toLocaleString('en-IN')}`
+              }
+            }
+          },
+          scales: {
+            x: {
+              grid:  { display: false },
+              ticks: { color: '#8888aa', font: { size: 11 } },
+              border:{ display: false },
+            },
+            y: {
+              grid:  { color: 'rgba(255,255,255,0.04)', drawBorder: false },
+              ticks: {
+                color: '#8888aa', font: { size: 11 },
+                callback: v => v >= 1000 ? '₹' + (v/1000).toFixed(0) + 'k' : '₹' + v
+              },
+              border:{ display: false },
+              beginAtZero: true,
+            }
+          }
+        }
+      });
+    }
+
+    // ── Status doughnut ───────────────────────────────────────────────────
+    function drawStatus() {
+      const skeleton = document.getElementById('statusSkeleton');
+      const wrap     = document.getElementById('statusWrap');
+      const legend   = document.getElementById('statusLegend');
+      skeleton.style.display = 'none';
+      wrap.style.display     = 'block';
+      legend.style.display   = 'block';
+
+      const ctx = document.getElementById('statusChart').getContext('2d');
+
+      new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+          labels:   ['Pending', 'In Progress', 'Completed'],
+          datasets: [{
+            data:            hasProjects ? [pending, inProgress, completed] : [1, 1, 1],
+            backgroundColor: hasProjects
+              ? ['rgba(251,191,36,0.8)', 'rgba(99,179,237,0.8)', 'rgba(52,211,153,0.8)']
+              : ['rgba(255,255,255,0.05)', 'rgba(255,255,255,0.05)', 'rgba(255,255,255,0.05)'],
+            borderColor:     'transparent',
+            borderWidth:     0,
+            hoverOffset:     6,
+          }]
+        },
+        options: {
+          responsive:          true,
+          maintainAspectRatio: false,
+          cutout:              '68%',
+          plugins: {
+            legend: { display: false },   // we have our own legend below
+            tooltip: hasProjects ? {
+              backgroundColor: '#1a1a26',
+              borderColor:     'rgba(99,179,237,0.3)',
+              borderWidth:     1,
+              titleColor:      '#e2e8f0',
+              bodyColor:       '#94a3b8',
+              padding:         12,
+              callbacks: {
+                label: ctx => ` ${ctx.label}: ${ctx.parsed}`
+              }
+            } : { enabled: false }
+          }
+        },
+        plugins: hasProjects ? [] : [{
+          id: 'centerText',
+          beforeDraw(chart) {
+            const { ctx, chartArea: { top, right, bottom, left, width, height } } = chart;
+            ctx.save();
+            ctx.textAlign    = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillStyle    = '#55557a';
+            ctx.font         = '13px DM Sans, sans-serif';
+            ctx.fillText('No projects yet', left + width / 2, top + height / 2);
+            ctx.restore();
+          }
+        }]
+      });
+    }
+
+    // Fallback: if CDN is slow, init after window load
+    window.addEventListener('load', () => {
+      if (typeof Chart !== 'undefined' &&
+          document.getElementById('revWrap').style.display === 'none') {
+        initCharts();
+      }
+    });
+  </script>
+</body>
+</html>

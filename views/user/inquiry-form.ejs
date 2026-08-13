@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <link rel="icon" type="image/jpeg" href="/stackifyx-logo.jpg">
+    <!-- Anti-flash: apply saved theme before first paint -->
+    <script>if(localStorage.getItem('devcraft-theme')==='light')document.documentElement.classList.add('light');</script>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %> — StackifyX</title>
+    <link rel="stylesheet" href="/css/style.css">
+  </head>
+<body>
+  <%- include('../partials/navbar') %>
+  <div class="page-wrapper">
+    <div class="container container-md" style="padding-top:48px; padding-bottom:64px;">
+
+      <div style="margin-bottom:32px;">
+        <a href="/dashboard" style="font-size:0.85rem; color:var(--text-muted);">← Back to Dashboard</a>
+        <h1 style="margin-top:16px;">Submit Project Request</h1>
+        <p>Tell us about your project and we'll review it within 24 hours.</p>
+      </div>
+
+      <%- include('../partials/flash') %>
+
+      <% if (errors && errors.length > 0) { %>
+        <div class="alert alert-error">
+          <span class="alert-icon">!</span>
+          <div><% errors.forEach(e => { %><div><%= e.msg %></div><% }) %></div>
+        </div>
+      <% } %>
+
+      <form action="/inquiries" method="POST" enctype="multipart/form-data" novalidate>
+        <div class="card" style="margin-bottom:24px;">
+          <div class="card-header"><span class="card-title">📋 Project Details</span></div>
+
+          <div class="form-group">
+            <label for="title">Project Title *</label>
+            <input type="text" id="title" name="title"
+              value="<%= formData.title || '' %>"
+              placeholder="e.g., E-commerce Website for my Clothing Brand"
+              required maxlength="200">
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="category">Project Category *</label>
+              <select id="category" name="category" required>
+                <option value="">Select category...</option>
+                <% [['web','🌐 Web Application'],['mobile','📱 Mobile App'],['desktop','🖥️ Desktop App'],['api','⚡ API / Backend'],['database','🗄️ Database'],['other','🔧 Other']].forEach(([val,label]) => { %>
+                  <option value="<%= val %>" <%= (formData.category === val) ? 'selected' : '' %>><%= label %></option>
+                <% }) %>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="timeline">Preferred Timeline *</label>
+              <select id="timeline" name="timeline">
+                <% [['1-week','1 Week'],['2-weeks','2 Weeks'],['1-month','1 Month'],['2-months','2 Months'],['3-months','3 Months'],['flexible','Flexible']].forEach(([val,label]) => { %>
+                  <option value="<%= val %>" <%= (formData.timeline === val || (!formData.timeline && val === 'flexible')) ? 'selected' : '' %>><%= label %></option>
+                <% }) %>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="description">Project Description *</label>
+            <textarea id="description" name="description" rows="6"
+              placeholder="Describe your project in detail. Include what features you need, who the target users are, any specific requirements, examples of similar projects, etc."
+              required maxlength="2000"><%= formData.description || '' %></textarea>
+            <div style="text-align:right; font-size:0.75rem; color:var(--text-muted); margin-top:4px;">
+              <span id="descCount">0</span>/2000
+            </div>
+          </div>
+        </div>
+
+        <div class="card" style="margin-bottom:24px;">
+          <div class="card-header"><span class="card-title">💰 Budget & Tech</span></div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="budget">Your Budget (INR ₹) *</label>
+              <input type="number" id="budget" name="budget"
+                value="<%= formData.budget || '' %>"
+                placeholder="e.g., 15000"
+                min="0" step="500" required>
+              <div style="font-size:0.78rem; color:var(--text-muted); margin-top:4px;">Enter your approximate budget in Indian Rupees</div>
+            </div>
+            <div class="form-group">
+              <label for="techStack">Preferred Tech Stack</label>
+              <input type="text" id="techStack" name="techStack"
+                value="<%= formData.techStack || '' %>"
+                placeholder="e.g., React, Node.js, MongoDB">
+              <div style="font-size:0.78rem; color:var(--text-muted); margin-top:4px;">Comma-separated. Leave blank if unsure.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card" style="margin-bottom:32px;">
+          <div class="card-header"><span class="card-title">📎 Attachments (Optional)</span></div>
+          <p style="font-size:0.85rem; margin-bottom:16px;">Upload any reference files, wireframes, design mockups, or documents. Max 5 files, 10MB each.</p>
+          <div class="file-drop-zone" id="dropZone">
+            <input type="file" id="attachments" name="attachments" multiple
+              accept=".jpg,.jpeg,.png,.gif,.pdf,.doc,.docx,.zip,.txt,.ppt,.pptx"
+              style="display:none;">
+            <div style="font-size:2.5rem; margin-bottom:12px;">📁</div>
+            <p style="font-weight:600; color:var(--text-primary); margin-bottom:4px;">Drop files here or <label for="attachments" style="color:var(--accent-blue); cursor:pointer;">browse</label></p>
+            <p style="font-size:0.8rem; color:var(--text-muted);">PDF, DOC, JPG, PNG, ZIP up to 10MB</p>
+          </div>
+          <div id="fileList" style="margin-top:12px;"></div>
+        </div>
+
+        <div style="display:flex; gap:12px;">
+          <button type="submit" class="btn btn-primary btn-lg">
+            Submit Request →
+          </button>
+          <a href="/dashboard" class="btn btn-secondary btn-lg">Cancel</a>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <style>
+    .file-drop-zone {
+      border: 2px dashed var(--border);
+      border-radius: var(--radius-md);
+      padding: 40px;
+      text-align: center;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+    .file-drop-zone:hover, .file-drop-zone.dragover {
+      border-color: var(--accent-blue);
+      background: rgba(99,179,237,0.04);
+    }
+  </style>
+  <script>
+    // Character counter
+    const desc = document.getElementById('description');
+    const counter = document.getElementById('descCount');
+    desc.addEventListener('input', () => counter.textContent = desc.value.length);
+
+    // File drop zone
+    const zone = document.getElementById('dropZone');
+    const input = document.getElementById('attachments');
+    const fileList = document.getElementById('fileList');
+
+    zone.addEventListener('click', () => input.click());
+    zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('dragover'); });
+    zone.addEventListener('dragleave', () => zone.classList.remove('dragover'));
+    zone.addEventListener('drop', e => {
+      e.preventDefault(); zone.classList.remove('dragover');
+      input.files = e.dataTransfer.files;
+      updateFileList();
+    });
+    input.addEventListener('change', updateFileList);
+
+    function updateFileList() {
+      const files = Array.from(input.files);
+      fileList.innerHTML = files.map(f => `
+        <div class="file-item">
+          <span class="file-icon">📄</span>
+          <div class="file-info">
+            <div class="file-name">${f.name}</div>
+            <div class="file-size">${(f.size / 1024).toFixed(1)} KB</div>
+          </div>
+        </div>
+      `).join('');
+    }
+  </script>
+</body>
+</html>

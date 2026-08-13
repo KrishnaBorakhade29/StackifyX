@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <link rel="icon" type="image/jpeg" href="/stackifyx-logo.jpg">
+    <!-- Anti-flash: apply saved theme before first paint -->
+    <script>if(localStorage.getItem('devcraft-theme')==='light')document.documentElement.classList.add('light');</script>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %> — StackifyX</title>
+    <link rel="stylesheet" href="/css/style.css">
+  </head>
+<body>
+  <%- include('../partials/navbar') %>
+  <div class="page-wrapper">
+    <div class="container" style="padding-top:48px; padding-bottom:64px;">
+      <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:16px; margin-bottom:32px;">
+        <div>
+          <a href="/admin/dashboard" style="font-size:0.85rem; color:var(--text-muted);">← Admin Dashboard</a>
+          <h1 style="margin-top:12px;">Manage Users</h1>
+          <p><%= total %> total clients</p>
+        </div>
+      </div>
+      <%- include('../partials/flash') %>
+      <div class="card">
+        <% if (users && users.length > 0) { %>
+          <div class="table-wrapper">
+            <table>
+              <thead><tr><th>Client</th><th>Email</th><th>Phone</th><th>Projects</th><th>Joined</th><th>Status</th><th>Action</th></tr></thead>
+              <tbody>
+                <% users.forEach(u => { %>
+                  <tr>
+                    <td>
+                      <div style="display:flex; align-items:center; gap:10px;">
+                        <div style="width:34px; height:34px; background:var(--gradient-primary); border-radius:50%; display:flex; align-items:center; justify-content:center; font-family:var(--font-display); font-weight:700; font-size:0.9rem; color:#fff; flex-shrink:0;">
+                          <%= u.name.charAt(0).toUpperCase() %>
+                        </div>
+                        <span style="font-weight:600; color:var(--text-primary);"><%= u.name %></span>
+                      </div>
+                    </td>
+                    <td style="font-size:0.85rem;"><%= u.email %></td>
+                    <td style="font-size:0.85rem; color:var(--text-muted);"><%= u.phone || '—' %></td>
+                    <td style="font-family:var(--font-mono); font-weight:600; color:var(--accent-blue);"><%= u.projectCount %></td>
+                    <td style="font-size:0.82rem; color:var(--text-muted);"><%= new Date(u.createdAt).toLocaleDateString('en-IN', {dateStyle:'medium'}) %></td>
+                    <td>
+                      <span class="badge <%= u.isActive ? 'badge-completed' : 'badge-cancelled' %>">
+                        <%= u.isActive ? 'Active' : 'Inactive' %>
+                      </span>
+                    </td>
+                    <td>
+                      <form action="/admin/users/<%= u._id %>/toggle" method="POST" style="display:inline;">
+                        <button type="submit" class="btn btn-sm <%= u.isActive ? 'btn-danger' : 'btn-success' %>">
+                          <%= u.isActive ? 'Deactivate' : 'Activate' %>
+                        </button>
+                      </form>
+                    </td>
+                  </tr>
+                <% }) %>
+              </tbody>
+            </table>
+          </div>
+          <% if (totalPages > 1) { %>
+            <div class="pagination">
+              <% for(let i=1; i<=totalPages; i++) { %>
+                <a href="/admin/users?page=<%= i %>" class="page-btn <%= currentPage===i ? 'active' : '' %>"><%= i %></a>
+              <% } %>
+            </div>
+          <% } %>
+        <% } else { %>
+          <div class="empty-state"><div class="empty-state-icon">👥</div><h3>No Users Yet</h3><p>Clients will appear here after registering.</p></div>
+        <% } %>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <link rel="icon" type="image/jpeg" href="/stackifyx-logo.jpg">
+    <!-- Anti-flash: apply saved theme before first paint -->
+    <script>if(localStorage.getItem('devcraft-theme')==='light')document.documentElement.classList.add('light');</script>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %> — StackifyX</title>
+    <link rel="stylesheet" href="/css/style.css">
+  </head>
+<body>
+  <%- include('../partials/navbar') %>
+  <div class="page-wrapper">
+    <div class="container" style="padding-top:48px; padding-bottom:64px;">
+      <div style="margin-bottom:32px;">
+        <a href="/admin/dashboard" style="font-size:0.85rem; color:var(--text-muted);">← Admin Dashboard</a>
+        <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:16px; margin-top:12px;">
+          <div>
+            <h1>Revenue & Payments</h1>
+            <p>All completed transactions</p>
+          </div>
+          <div style="text-align:right;">
+            <div style="font-size:0.75rem; text-transform:uppercase; letter-spacing:0.05em; color:var(--text-muted); font-weight:700; margin-bottom:4px;">Total Revenue</div>
+            <div style="font-family:var(--font-mono); font-size:2rem; font-weight:800; color:var(--accent-green);">₹<%= totalRevenue.toLocaleString('en-IN') %></div>
+          </div>
+        </div>
+      </div>
+      <%- include('../partials/flash') %>
+      <div class="card">
+        <% if (payments && payments.length > 0) { %>
+          <div class="table-wrapper">
+            <table>
+              <thead><tr><th>Client</th><th>Project</th><th>Amount</th><th>Razorpay Order ID</th><th>Payment ID</th><th>Date</th></tr></thead>
+              <tbody>
+                <% payments.forEach(p => { %>
+                  <tr>
+                    <td>
+                      <div style="font-weight:600; color:var(--text-primary);"><%= p.user ? p.user.name : 'N/A' %></div>
+                      <div style="font-size:0.75rem; color:var(--text-muted);"><%= p.user ? p.user.email : '' %></div>
+                    </td>
+                    <td style="font-size:0.88rem; color:var(--text-secondary);"><%= p.project ? p.project.title : 'N/A' %></td>
+                    <td style="font-family:var(--font-mono); font-size:1rem; font-weight:700; color:var(--accent-green);">₹<%= (p.amount/100).toLocaleString('en-IN') %></td>
+                    <td style="font-family:var(--font-mono); font-size:0.75rem; color:var(--text-muted);"><%= p.razorpayOrderId || '—' %></td>
+                    <td style="font-family:var(--font-mono); font-size:0.75rem; color:var(--text-muted);"><%= p.razorpayPaymentId || '—' %></td>
+                    <td style="font-size:0.82rem; color:var(--text-muted);"><%= new Date(p.createdAt).toLocaleDateString('en-IN', {dateStyle:'medium'}) %></td>
+                  </tr>
+                <% }) %>
+              </tbody>
+            </table>
+          </div>
+        <% } else { %>
+          <div class="empty-state"><div class="empty-state-icon">💰</div><h3>No Payments Yet</h3><p>Completed payments will appear here.</p></div>
+        <% } %>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="icon" type="image/jpeg" href="/stackifyx-logo.jpg">
+  <!-- Anti-flash: apply saved theme before first paint -->
+  <script>if(localStorage.getItem('devcraft-theme')==='light')document.documentElement.classList.add('light');</script>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %> — StackifyX</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <%- include('../partials/navbar') %>
+  <div class="page-wrapper">
+    <div class="container" style="padding-top:48px; padding-bottom:64px;">
+      <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:16px; margin-bottom:32px;">
+        <div>
+          <a href="/admin/dashboard" style="font-size:0.85rem; color:var(--text-muted);">← Admin Dashboard</a>
+          <h1 style="margin-top:12px;">Manage Inquiries</h1>
+          <p><%= total %> total inquiries</p>
+        </div>
+        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+          <% ['','pending','accepted','rejected','converted'].forEach(s => { %>
+            <a href="/admin/inquiries<%= s ? '?status='+s : '' %>"
+               class="btn btn-sm <%= status === s ? 'btn-primary' : 'btn-secondary' %>">
+              <%= s || 'All' %>
+            </a>
+          <% }) %>
+        </div>
+      </div>
+
+      <%- include('../partials/flash') %>
+
+      <% if (inquiries && inquiries.length > 0) { %>
+        <div style="display:flex; flex-direction:column; gap:20px;">
+          <% inquiries.forEach(inq => { %>
+            <div class="card">
+              <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:16px; flex-wrap:wrap;">
+                <div style="flex:1;">
+                  <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:8px;">
+                    <h3 style="font-size:1rem;"><%= inq.title %></h3>
+                    <span class="badge badge-<%= inq.status %>"><%= inq.status %></span>
+                    <span class="badge" style="background:var(--bg-elevated); color:var(--text-muted);"><%= inq.category %></span>
+                  </div>
+                  <div style="display:flex; gap:16px; font-size:0.82rem; color:var(--text-muted); flex-wrap:wrap; margin-bottom:10px;">
+                    <span>👤 <strong style="color:var(--text-secondary);"><%= inq.user ? inq.user.name : 'Unknown' %></strong></span>
+                    <span>📧 <strong style="color:var(--text-secondary);"><%= inq.user ? inq.user.email : '' %></strong></span>
+                    <span>💰 <strong style="color:var(--accent-blue); font-family:var(--font-mono);">₹<%= inq.budget.toLocaleString('en-IN') %></strong></span>
+                    <span>⏱ <strong style="color:var(--text-secondary);"><%= inq.timeline %></strong></span>
+                    <span>📅 <strong style="color:var(--text-secondary);"><%= new Date(inq.createdAt).toLocaleDateString('en-IN', {dateStyle:'medium'}) %></strong></span>
+                  </div>
+                  <p style="font-size:0.88rem; color:var(--text-muted); line-height:1.6; margin-bottom:10px;">
+                    <%= inq.description.substring(0,250) %><%= inq.description.length > 250 ? '...' : '' %>
+                  </p>
+                  <% if (inq.techStack && inq.techStack.length) { %>
+                    <div style="display:flex; gap:6px; flex-wrap:wrap; margin-bottom:10px;">
+                      <% inq.techStack.forEach(t => { %>
+                        <span style="padding:2px 10px; background:var(--bg-elevated); border:1px solid var(--border); border-radius:100px; font-size:0.72rem; font-family:var(--font-mono); color:var(--text-muted);"><%= t %></span>
+                      <% }) %>
+                    </div>
+                  <% } %>
+                  <% if (inq.adminNote) { %>
+                    <div style="margin-top:12px; padding:12px 16px; background:var(--bg-elevated); border-radius:var(--radius-sm); border-left:3px solid var(--accent-blue);">
+                      <div style="font-size:0.72rem; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; color:var(--accent-blue); margin-bottom:4px;">Admin Note</div>
+                      <p style="font-size:0.85rem; color:var(--text-secondary); margin:0;"><%= inq.adminNote %></p>
+                    </div>
+                  <% } %>
+                </div>
+              </div>
+
+              <!-- Action buttons only — modals are at body level -->
+              <% if (inq.status === 'pending') { %>
+                <div style="display:flex; gap:12px; margin-top:16px; padding-top:16px; border-top:1px solid var(--border); flex-wrap:wrap;">
+                  <button class="btn btn-success btn-sm" onclick="openModal('accept-<%= inq._id %>')">✓ Accept</button>
+                  <button class="btn btn-danger btn-sm"  onclick="openModal('reject-<%= inq._id %>')">✗ Reject</button>
+                </div>
+              <% } else if (inq.status === 'accepted') { %>
+                <div style="margin-top:16px; padding-top:16px; border-top:1px solid var(--border);">
+                  <button class="btn btn-primary btn-sm" onclick="openModal('convert-<%= inq._id %>')">⚡ Convert to Project</button>
+                </div>
+              <% } %>
+            </div>
+          <% }) %>
+        </div>
+
+        <% if (totalPages > 1) { %>
+          <div class="pagination">
+            <% for(let i=1; i<=totalPages; i++) { %>
+              <a href="/admin/inquiries?page=<%= i %><%= status ? '&status='+status : '' %>"
+                 class="page-btn <%= currentPage === i ? 'active' : '' %>"><%= i %></a>
+            <% } %>
+          </div>
+        <% } %>
+      <% } else { %>
+        <div class="empty-state">
+          <div class="empty-state-icon">📋</div>
+          <h3>No Inquiries Found</h3>
+          <p>Inquiries will appear here when clients submit project requests.</p>
+        </div>
+      <% } %>
+    </div>
+  </div>
+
+  <!-- ALL MODALS: direct children of <body>, outside every card & stacking context -->
+  <% if (inquiries && inquiries.length > 0) { %>
+    <% inquiries.forEach(inq => { %>
+
+      <!-- ACCEPT MODAL -->
+      <div class="modal-overlay" id="modal-accept-<%= inq._id %>">
+        <div class="modal">
+          <div class="modal-header">
+            <h3>Accept Inquiry</h3>
+            <button class="modal-close" onclick="closeModal('accept-<%= inq._id %>')">×</button>
+          </div>
+          <p style="font-size:0.88rem; color:var(--text-muted); margin-bottom:20px;">
+            Accepting: <strong style="color:var(--text-primary);"><%= inq.title %></strong>
+          </p>
+          <form action="/admin/inquiries/<%= inq._id %>/status" method="POST">
+            <input type="hidden" name="status" value="accepted">
+            <div class="form-group">
+              <label>Note to Client (optional)</label>
+              <textarea name="adminNote" rows="3" placeholder="e.g. We reviewed your request and would love to work with you!"></textarea>
+            </div>
+            <div style="display:flex; gap:10px;">
+              <button type="submit" class="btn btn-success">✓ Accept Inquiry</button>
+              <button type="button" class="btn btn-secondary" onclick="closeModal('accept-<%= inq._id %>')">Cancel</button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- REJECT MODAL -->
+      <div class="modal-overlay" id="modal-reject-<%= inq._id %>">
+        <div class="modal">
+          <div class="modal-header">
+            <h3>Reject Inquiry</h3>
+            <button class="modal-close" onclick="closeModal('reject-<%= inq._id %>')">×</button>
+          </div>
+          <p style="font-size:0.88rem; color:var(--text-muted); margin-bottom:20px;">
+            Rejecting: <strong style="color:var(--text-primary);"><%= inq.title %></strong>
+          </p>
+          <form action="/admin/inquiries/<%= inq._id %>/status" method="POST">
+            <input type="hidden" name="status" value="rejected">
+            <div class="form-group">
+              <label>Reason for Rejection *</label>
+              <textarea name="adminNote" rows="3" placeholder="Explain why you are rejecting this inquiry..." required></textarea>
+            </div>
+            <div style="display:flex; gap:10px;">
+              <button type="submit" class="btn btn-danger">✗ Reject Inquiry</button>
+              <button type="button" class="btn btn-secondary" onclick="closeModal('reject-<%= inq._id %>')">Cancel</button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- CONVERT TO PROJECT MODAL -->
+      <div class="modal-overlay" id="modal-convert-<%= inq._id %>">
+        <div class="modal">
+          <div class="modal-header">
+            <h3>Convert to Project</h3>
+            <button class="modal-close" onclick="closeModal('convert-<%= inq._id %>')">×</button>
+          </div>
+          <p style="font-size:0.88rem; color:var(--text-muted); margin-bottom:20px;">
+            Set the final price, deadline and notes for
+            <strong style="color:var(--text-primary);"><%= inq.title %></strong>.
+          </p>
+          <form action="/admin/inquiries/<%= inq._id %>/convert" method="POST">
+            <div class="form-row">
+              <div class="form-group">
+                <label>Final Price (₹) *</label>
+                <input type="number" name="price" value="<%= inq.budget %>" min="0" required>
+              </div>
+              <div class="form-group">
+                <label>Project Deadline *</label>
+                <input type="date" name="deadline" required min="<%= new Date().toISOString().split('T')[0] %>">
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Admin Notes (visible to client)</label>
+              <textarea name="adminNotes" rows="3" placeholder="Internal notes about the project..."></textarea>
+            </div>
+            <div style="display:flex; gap:10px;">
+              <button type="submit" class="btn btn-primary">⚡ Create Project</button>
+              <button type="button" class="btn btn-secondary" onclick="closeModal('convert-<%= inq._id %>')">Cancel</button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+    <% }) %>
+  <% } %>
+
+  <script>
+    function openModal(id) {
+      document.getElementById('modal-' + id).classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+    function closeModal(id) {
+      document.getElementById('modal-' + id).classList.remove('open');
+      document.body.style.overflow = '';
+    }
+    document.querySelectorAll('.modal-overlay').forEach(m => {
+      m.addEventListener('click', e => {
+        if (e.target === m) { m.classList.remove('open'); document.body.style.overflow = ''; }
+      });
+    });
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape') {
+        document.querySelectorAll('.modal-overlay.open').forEach(m => {
+          m.classList.remove('open'); document.body.style.overflow = '';
+        });
+      }
+    });
+  </script>
+</body>
+</html>

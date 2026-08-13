@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <link rel="icon" type="image/jpeg" href="/stackifyx-logo.jpg">
+    <!-- Anti-flash: apply saved theme before first paint -->
+    <script>if(localStorage.getItem('devcraft-theme')==='light')document.documentElement.classList.add('light');</script>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %> — StackifyX</title>
+    <link rel="stylesheet" href="/css/style.css">
+  </head>
+<body>
+  <%- include('../partials/navbar') %>
+  <div class="page-wrapper">
+    <div class="container" style="padding-top:48px; padding-bottom:64px;">
+      <div style="margin-bottom:28px;">
+        <a href="/admin/projects" style="font-size:0.85rem; color:var(--text-muted);">← All Projects</a>
+      </div>
+
+      <%- include('../partials/flash') %>
+
+      <div class="detail-grid">
+        <!-- LEFT -->
+        <div>
+          <!-- Project Info -->
+          <div class="card" style="margin-bottom:24px;">
+            <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:16px; flex-wrap:wrap; margin-bottom:20px;">
+              <div>
+                <h1 style="font-size:1.5rem; margin-bottom:8px;"><%= project.title %></h1>
+                <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                  <span class="badge badge-<%= project.status.replace(' ','-') %>"><%= project.status %></span>
+                  <span class="badge" style="background:var(--bg-elevated); color:var(--text-muted);"><%= project.category %></span>
+                </div>
+              </div>
+              <div style="text-align:right;">
+                <div style="font-family:var(--font-mono); font-size:1.4rem; font-weight:800; color:var(--accent-blue);">₹<%= project.price.toLocaleString('en-IN') %></div>
+                <div style="font-size:0.78rem; color:var(--text-muted);">Paid: ₹<%= (project.amountPaid||0).toLocaleString('en-IN') %></div>
+              </div>
+            </div>
+
+            <p style="font-size:0.9rem; line-height:1.7; margin-bottom:20px;"><%= project.description %></p>
+
+            <div style="margin-bottom:20px;">
+              <div style="display:flex; justify-content:space-between; margin-bottom:8px; font-size:0.85rem;">
+                <span style="color:var(--text-muted);">Progress</span>
+                <span style="color:var(--accent-blue); font-family:var(--font-mono); font-weight:700;"><%= project.progress %>%</span>
+              </div>
+              <div class="progress-bar" style="height:10px;"><div class="progress-fill" style="width:<%= project.progress %>%"></div></div>
+            </div>
+
+            <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(130px,1fr)); gap:12px; padding-top:16px; border-top:1px solid var(--border);">
+              <div>
+                <div style="font-size:0.7rem; text-transform:uppercase; letter-spacing:0.05em; color:var(--text-muted); font-weight:700; margin-bottom:3px;">Client</div>
+                <div style="font-size:0.88rem; color:var(--text-primary); font-weight:600;"><%= project.user ? project.user.name : 'N/A' %></div>
+                <div style="font-size:0.75rem; color:var(--text-muted);"><%= project.user ? project.user.email : '' %></div>
+              </div>
+              <div>
+                <div style="font-size:0.7rem; text-transform:uppercase; letter-spacing:0.05em; color:var(--text-muted); font-weight:700; margin-bottom:3px;">Deadline</div>
+                <div style="font-size:0.88rem; color:var(--text-primary);">
+                  <%= project.deadline ? new Date(project.deadline).toLocaleDateString('en-IN', {dateStyle:'medium'}) : 'TBD' %>
+                </div>
+              </div>
+              <div>
+                <div style="font-size:0.7rem; text-transform:uppercase; letter-spacing:0.05em; color:var(--text-muted); font-weight:700; margin-bottom:3px;">Payment</div>
+                <span class="badge badge-<%= project.paymentStatus === 'paid' ? 'completed' : project.paymentStatus === 'partial' ? 'in-progress' : 'pending' %>"><%= project.paymentStatus %></span>
+              </div>
+            </div>
+
+            <div style="margin-top:16px;">
+              <a href="/chat/<%= project._id %>" class="btn btn-primary btn-sm">💬 Open Chat</a>
+            </div>
+          </div>
+
+          <!-- Update Project -->
+          <div class="card" style="margin-bottom:24px;">
+            <div class="card-header"><span class="card-title">✏️ Update Project</span></div>
+            <form action="/admin/projects/<%= project._id %>/update" method="POST">
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Status</label>
+                  <select name="status">
+                    <% ['pending','in-progress','review','completed','cancelled'].forEach(s => { %>
+                      <option value="<%= s %>" <%= project.status === s ? 'selected' : '' %>><%= s %></option>
+                    <% }) %>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label>Progress (%)</label>
+                  <input type="number" name="progress" min="0" max="100" value="<%= project.progress %>" id="progressInput">
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Final Price (₹)</label>
+                  <input type="number" name="price" value="<%= project.price %>" min="0">
+                </div>
+                <div class="form-group">
+                  <label>Deadline</label>
+                  <input type="date" name="deadline" value="<%= project.deadline ? new Date(project.deadline).toISOString().split('T')[0] : '' %>">
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label>GitHub Link</label>
+                  <input type="url" name="githubLink" value="<%= project.githubLink || '' %>" placeholder="https://github.com/...">
+                </div>
+                <div class="form-group">
+                  <label>Live Demo Link</label>
+                  <input type="url" name="liveLink" value="<%= project.liveLink || '' %>" placeholder="https://...">
+                </div>
+              </div>
+              <div class="form-group">
+                <label>Admin Notes (visible to client)</label>
+                <textarea name="adminNotes" rows="3" placeholder="Notes visible to the client..."><%= project.adminNotes || '' %></textarea>
+              </div>
+              <button type="submit" class="btn btn-primary">Save Changes →</button>
+            </form>
+          </div>
+
+          <!-- File Upload -->
+          <div class="card" style="margin-bottom:24px;">
+            <div class="card-header"><span class="card-title">📦 Upload Deliverables</span></div>
+            <form action="/admin/projects/<%= project._id %>/files" method="POST" enctype="multipart/form-data">
+              <div class="form-group">
+                <label>Select Files</label>
+                <input type="file" name="files" multiple>
+              </div>
+              <button type="submit" class="btn btn-secondary">Upload Files</button>
+            </form>
+
+            <% if (project.files && project.files.length > 0) { %>
+              <div style="margin-top:20px; padding-top:16px; border-top:1px solid var(--border);">
+                <div style="font-size:0.75rem; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; color:var(--text-muted); margin-bottom:12px;">Uploaded Files</div>
+                <% project.files.forEach(file => { %>
+                  <div class="file-item">
+                    <span class="file-icon">📄</span>
+                    <div class="file-info">
+                      <div class="file-name"><%= file.originalName %></div>
+                      <div class="file-size"><%= (file.size/1024).toFixed(1) %> KB · <%= new Date(file.uploadedAt).toLocaleDateString('en-IN') %></div>
+                    </div>
+                    <a href="<%= file.path %>" download class="btn btn-secondary btn-sm">⬇</a>
+                  </div>
+                <% }) %>
+              </div>
+            <% } %>
+          </div>
+
+          <!-- Milestones -->
+          <div class="card">
+            <div class="card-header"><span class="card-title">📌 Milestones</span></div>
+            <form action="/admin/projects/<%= project._id %>/milestone" method="POST" style="margin-bottom:20px;">
+              <div class="form-row">
+                <div class="form-group"><label>Title *</label><input type="text" name="title" placeholder="Milestone title" required></div>
+                <div class="form-group"><label>Due Date</label><input type="date" name="dueDate"></div>
+              </div>
+              <div class="form-group"><label>Description</label><input type="text" name="description" placeholder="Optional details..."></div>
+              <button type="submit" class="btn btn-secondary btn-sm">+ Add Milestone</button>
+            </form>
+
+            <% if (project.milestones && project.milestones.length > 0) { %>
+              <% project.milestones.forEach(m => { %>
+                <div class="milestone-item <%= m.completed ? 'done' : '' %>">
+                  <div class="milestone-check"><%= m.completed ? '✓' : '' %></div>
+                  <div class="milestone-info">
+                    <div class="milestone-title"><%= m.title %></div>
+                    <% if (m.description) { %><div class="milestone-desc"><%= m.description %></div><% } %>
+                    <% if (m.dueDate) { %><div class="milestone-desc">Due: <%= new Date(m.dueDate).toLocaleDateString('en-IN') %></div><% } %>
+                  </div>
+                  <form action="/admin/projects/<%= project._id %>/milestone/<%= m._id %>" method="POST" style="flex-shrink:0;">
+                    <button type="submit" class="btn btn-sm <%= m.completed ? 'btn-secondary' : 'btn-success' %>">
+                      <%= m.completed ? 'Undo' : 'Complete' %>
+                    </button>
+                  </form>
+                </div>
+              <% }) %>
+            <% } else { %>
+              <div style="text-align:center; padding:24px 0; color:var(--text-muted); font-size:0.9rem;">No milestones yet</div>
+            <% } %>
+          </div>
+        </div>
+
+        <!-- RIGHT SIDEBAR -->
+        <div>
+          <!-- Payments -->
+          <div class="card" style="margin-bottom:24px;">
+            <div class="card-header"><span class="card-title">💳 Payments</span></div>
+            <% if (payments && payments.length > 0) { %>
+              <% payments.filter(p=>p.status==='captured').forEach(p => { %>
+                <div style="display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px solid var(--border);">
+                  <div>
+                    <div style="font-size:0.88rem; font-weight:600; color:var(--text-primary);">₹<%= (p.amount/100).toLocaleString('en-IN') %></div>
+                    <div style="font-size:0.72rem; color:var(--text-muted); font-family:var(--font-mono);">
+                      <%= p.razorpayPaymentId ? p.razorpayPaymentId.substring(0,20)+'...' : 'N/A' %>
+                    </div>
+                    <div style="font-size:0.72rem; color:var(--text-muted);"><%= new Date(p.createdAt).toLocaleDateString('en-IN') %></div>
+                  </div>
+                  <span class="badge badge-completed">captured</span>
+                </div>
+              <% }) %>
+              <div style="margin-top:12px; padding-top:12px; border-top:1px solid var(--border); font-size:0.85rem;">
+                <div style="display:flex; justify-content:space-between;">
+                  <span style="color:var(--text-muted);">Total Received</span>
+                  <span style="color:var(--accent-green); font-family:var(--font-mono); font-weight:700;">₹<%= (project.amountPaid||0).toLocaleString('en-IN') %></span>
+                </div>
+              </div>
+            <% } else { %>
+              <div style="text-align:center; padding:24px 0; color:var(--text-muted); font-size:0.9rem;">No payments yet</div>
+            <% } %>
+          </div>
+
+          <!-- Review -->
+          <% if (review) { %>
+            <div class="card">
+              <div class="card-header"><span class="card-title">⭐ Client Review</span></div>
+              <div style="display:flex; gap:4px; margin-bottom:12px;">
+                <% for(let i=1;i<=5;i++) { %>
+                  <span style="font-size:1.2rem; color:<%= i<=review.rating ? 'var(--accent-orange)' : 'var(--text-muted)' %>;">★</span>
+                <% } %>
+                <span style="font-size:0.85rem; color:var(--text-muted); margin-left:6px;"><%= review.rating %>/5</span>
+              </div>
+              <% if (review.title) { %><h4 style="margin-bottom:6px; font-size:0.95rem;"><%= review.title %></h4><% } %>
+              <p style="font-size:0.88rem; line-height:1.7;"><%= review.feedback %></p>
+              <% if (review.communication) { %>
+                <div style="margin-top:12px; padding-top:12px; border-top:1px solid var(--border); display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+                  <% [['Communication', review.communication],['Quality', review.quality],['Timeliness', review.timeliness],['Value', review.value]].forEach(([label, val]) => { %>
+                    <div>
+                      <div style="font-size:0.7rem; text-transform:uppercase; letter-spacing:0.05em; color:var(--text-muted); font-weight:700; margin-bottom:3px;"><%= label %></div>
+                      <div style="font-size:0.88rem; color:var(--accent-orange);"><%= '★'.repeat(val || 0) %><%= '☆'.repeat(5 - (val || 0)) %></div>
+                    </div>
+                  <% }) %>
+                </div>
+              <% } %>
+            </div>
+          <% } %>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Auto-set progress to 100 when status is completed
+    document.querySelector('select[name="status"]')?.addEventListener('change', function() {
+      if (this.value === 'completed') document.getElementById('progressInput').value = 100;
+    });
+  </script>
+</body>
+</html>
