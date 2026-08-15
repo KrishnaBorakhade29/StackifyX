@@ -1,156 +1,562 @@
 <%# views/partials/navbar.ejs %>
+
 <!-- Anti-flash: apply saved theme before first paint -->
-<script>if(localStorage.getItem('devcraft-theme')==='light')document.documentElement.classList.add('light');</script>
+<script>
+  if (localStorage.getItem('devcraft-theme') === 'light') {
+    document.documentElement.classList.add('light');
+  }
+</script>
 
 <nav class="navbar">
   <div class="nav-container">
 
-    <!-- ── LEFT SIDE ──────────────────────────────────────── -->
-    <div style="display:flex; align-items:center; gap:16px; flex-shrink:0;">
+    <!-- ======================================================
+         LEFT SIDE
+         ====================================================== -->
 
-      <!-- Brand logo -->
+    <div
+      style="
+        display:flex;
+        align-items:center;
+        gap:16px;
+        flex-shrink:0;
+      "
+    >
+
+      <!-- Brand -->
       <a href="/" class="nav-brand">
-        <img src="/stackifyx-logo.jpg" alt="StackifyX Logo" class="brand-logo-img">
-        <span class="brand-text">Stackify<span class="brand-accent">X</span></span>
+
+        <img
+          src="/stackifyx-logo.jpg"
+          alt="StackifyX Logo"
+          class="brand-logo-img"
+        >
+
+        <span class="brand-text">
+          Stackify<span class="brand-accent">X</span>
+        </span>
+
       </a>
 
     </div>
 
-    <!-- ── RIGHT GROUP: nav links + theme toggle flush together ── -->
-    <!-- Theme toggle + hamburger — flush right next to nav links -->
-    <div style="display:flex; align-items:center; gap:1px;">
-      <button class="theme-toggle" id="themeToggle"
-      title="Toggle light / dark mode" aria-label="Toggle theme">
-      <span class="t-dark">🌙</span>
-      <span class="t-light">☀️</span>
+
+    <!-- ======================================================
+         RIGHT SIDE
+         ====================================================== -->
+
+    <div
+      style="
+        display:flex;
+        align-items:center;
+        gap:1px;
+      "
+    >
+
+      <!-- Theme Toggle -->
+      <button
+        class="theme-toggle"
+        id="themeToggle"
+        title="Toggle light / dark mode"
+        aria-label="Toggle theme"
+        type="button"
+      >
+        <span class="t-dark">🌙</span>
+        <span class="t-light">☀️</span>
       </button>
-    <button class="nav-toggle" id="navToggle" aria-label="Toggle menu">
-      <span></span><span></span><span></span>
-    </button>
-    
-    <div class="nav-links" id="navLinks">
-      <% if (currentUser) { %>
 
-        <!-- Desktop nav links (logged-in) -->
-        <div class="nav-desktop-links">
-          <% if (currentUser.role === 'admin') { %>
-            <a href="/admin/dashboard" class="nav-link">Dashboard</a>
-            <a href="/admin/inquiries"  class="nav-link">Inquiries</a>
-            <a href="/admin/projects"   class="nav-link">Projects</a>
-            <a href="/admin/users"      class="nav-link">Users</a>
-            <a href="/admin/payments"   class="nav-link">Payments</a>
-          <% } else { %>
-            <a href="/dashboard"  class="nav-link">Dashboard</a>
-            <a href="/inquiries"  class="nav-link">My Inquiries</a>
-            <a href="/payments"   class="nav-link">Payments</a>
-          <% } %>
-        </div>
 
-        <!-- Desktop avatar dropdown -->
-        <div class="nav-user" id="navUser">
-          <div class="user-avatar" id="userAvatarBtn">
-            <%= currentUser.name.charAt(0).toUpperCase() %>
+      <!-- Hamburger -->
+      <button
+        class="nav-toggle"
+        id="navToggle"
+        aria-label="Toggle menu"
+        type="button"
+      >
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+
+
+      <!-- ====================================================
+           NAV LINKS
+           ==================================================== -->
+
+      <div
+        class="nav-links"
+        id="navLinks"
+      >
+
+        <% if (typeof currentUser !== 'undefined' && currentUser) { %>
+
+          <!-- ==================================================
+               LOGGED-IN DESKTOP NAV
+               ================================================== -->
+
+          <div class="nav-desktop-links">
+
+            <% if (currentUser.role === 'admin') { %>
+
+              <a
+                href="/admin/dashboard"
+                class="nav-link"
+              >
+                Dashboard
+              </a>
+
+              <a
+                href="/admin/inquiries"
+                class="nav-link"
+              >
+                Inquiries
+              </a>
+
+              <a
+                href="/admin/projects"
+                class="nav-link"
+              >
+                Projects
+              </a>
+
+              <a
+                href="/admin/users"
+                class="nav-link"
+              >
+                Users
+              </a>
+
+              <a
+                href="/admin/payments"
+                class="nav-link"
+              >
+                Payments
+              </a>
+
+            <% } else { %>
+
+              <a
+                href="/dashboard"
+                class="nav-link"
+              >
+                Dashboard
+              </a>
+
+              <a
+                href="/inquiries"
+                class="nav-link"
+              >
+                My Inquiries
+              </a>
+
+              <a
+                href="/payments"
+                class="nav-link"
+              >
+                Payments
+              </a>
+
+            <% } %>
+
           </div>
-          <div class="user-dropdown" id="userDropdown">
-            <div class="user-dropdown-inner">
-              <div class="dropdown-header">
-                <strong><%= currentUser.name %></strong>
-                <span class="user-role-badge <%= currentUser.role %>"><%= currentUser.role %></span>
-              </div>
-              <div class="dropdown-divider"></div>
-              <a href="/auth/logout" class="dropdown-item logout">Sign Out →</a>
+
+
+          <!-- ==================================================
+               DESKTOP USER AVATAR
+               ================================================== -->
+
+          <div
+            class="nav-user"
+            id="navUser"
+          >
+
+            <div
+              class="user-avatar"
+              id="userAvatarBtn"
+            >
+              <%= currentUser.name
+                ? currentUser.name.charAt(0).toUpperCase()
+                : 'U'
+              %>
             </div>
-          </div>
-        </div>
 
-        <!-- Mobile menu (logged-in) -->
-        <div class="mobile-nav-menu">
-          <% if (currentUser.role === 'admin') { %>
-            <a href="/admin/dashboard" class="mobile-nav-link">📊 Dashboard</a>
-            <a href="/admin/inquiries"  class="mobile-nav-link">📋 Inquiries</a>
-            <a href="/admin/projects"   class="mobile-nav-link">🏗️ Projects</a>
-            <a href="/admin/users"      class="mobile-nav-link">👥 Users</a>
-            <a href="/admin/payments"   class="mobile-nav-link">💰 Payments</a>
-            <a href="/admin/reviews"    class="mobile-nav-link">⭐ Reviews</a>
-          <% } else { %>
-            <a href="/dashboard"     class="mobile-nav-link">📊 Dashboard</a>
-            <a href="/inquiries/new" class="mobile-nav-link">➕ New Request</a>
-            <a href="/inquiries"     class="mobile-nav-link">📋 My Inquiries</a>
-            <a href="/payments"      class="mobile-nav-link">💳 Payments</a>
-          <% } %>
-          <div class="mobile-user-section">
-            <div class="mobile-user-info">
-              <div class="mobile-user-avatar">
-                <%= currentUser.name.charAt(0).toUpperCase() %>
+
+            <!-- User Dropdown -->
+            <div
+              class="user-dropdown"
+              id="userDropdown"
+            >
+
+              <div class="user-dropdown-inner">
+
+                <div class="dropdown-header">
+
+                  <strong>
+                    <%= currentUser.name || 'User' %>
+                  </strong>
+
+                  <span
+                    class="user-role-badge <%= currentUser.role || 'user' %>"
+                  >
+                    <%= currentUser.role || 'user' %>
+                  </span>
+
+                </div>
+
+
+                <div class="dropdown-divider"></div>
+
+
+                <a
+                  href="/auth/logout"
+                  class="dropdown-item logout"
+                >
+                  Sign Out →
+                </a>
+
               </div>
-              <div>
-                <div class="mobile-user-name"><%= currentUser.name %></div>
-                <div class="mobile-user-email"><%= currentUser.email %></div>
-              </div>
+
             </div>
-            <a href="/auth/logout" class="mobile-signout-btn">Sign Out →</a>
-          </div>
-        </div>
 
-      <% } else { %>
-        <!-- Desktop: Login + Get Started on RIGHT -->
-        <div class="nav-desktop-links">
-          <a href="/auth/login"    class="nav-link">Login</a>
-          <a href="/auth/register" class="nav-btn">Get Started</a>
-        </div>
-        <!-- Mobile menu (guest) -->
-        <div class="mobile-nav-menu">
-          <a href="/auth/login"    class="mobile-nav-link">🔑 Login</a>
-          <a href="/auth/register" class="mobile-nav-link mobile-nav-highlight">✨ Get Started Free</a>
-        </div>
-      <% } %>
+          </div>
+
+
+          <!-- ==================================================
+               MOBILE LOGGED-IN MENU
+               ================================================== -->
+
+          <div class="mobile-nav-menu">
+
+            <% if (currentUser.role === 'admin') { %>
+
+              <a
+                href="/admin/dashboard"
+                class="mobile-nav-link"
+              >
+                📊 Dashboard
+              </a>
+
+              <a
+                href="/admin/inquiries"
+                class="mobile-nav-link"
+              >
+                📋 Inquiries
+              </a>
+
+              <a
+                href="/admin/projects"
+                class="mobile-nav-link"
+              >
+                🏗️ Projects
+              </a>
+
+              <a
+                href="/admin/users"
+                class="mobile-nav-link"
+              >
+                👥 Users
+              </a>
+
+              <a
+                href="/admin/payments"
+                class="mobile-nav-link"
+              >
+                💰 Payments
+              </a>
+
+              <a
+                href="/admin/reviews"
+                class="mobile-nav-link"
+              >
+                ⭐ Reviews
+              </a>
+
+            <% } else { %>
+
+              <a
+                href="/dashboard"
+                class="mobile-nav-link"
+              >
+                📊 Dashboard
+              </a>
+
+              <a
+                href="/inquiries/new"
+                class="mobile-nav-link"
+              >
+                ➕ New Request
+              </a>
+
+              <a
+                href="/inquiries"
+                class="mobile-nav-link"
+              >
+                📋 My Inquiries
+              </a>
+
+              <a
+                href="/payments"
+                class="mobile-nav-link"
+              >
+                💳 Payments
+              </a>
+
+            <% } %>
+
+
+            <!-- Mobile User -->
+            <div class="mobile-user-section">
+
+              <div class="mobile-user-info">
+
+                <div class="mobile-user-avatar">
+
+                  <%= currentUser.name
+                    ? currentUser.name.charAt(0).toUpperCase()
+                    : 'U'
+                  %>
+
+                </div>
+
+
+                <div>
+
+                  <div class="mobile-user-name">
+                    <%= currentUser.name || 'User' %>
+                  </div>
+
+                  <div class="mobile-user-email">
+                    <%= currentUser.email || '' %>
+                  </div>
+
+                </div>
+
+              </div>
+
+
+              <a
+                href="/auth/logout"
+                class="mobile-signout-btn"
+              >
+                Sign Out →
+              </a>
+
+            </div>
+
+          </div>
+
+
+        <% } else { %>
+
+
+          <!-- ==================================================
+               GUEST DESKTOP NAV
+               ================================================== -->
+
+          <div class="nav-desktop-links">
+
+            <a
+              href="/auth/login"
+              class="nav-link"
+            >
+              Login
+            </a>
+
+            <a
+              href="/auth/register"
+              class="nav-btn"
+            >
+              Get Started
+            </a>
+
+          </div>
+
+
+          <!-- ==================================================
+               GUEST MOBILE NAV
+               ================================================== -->
+
+          <div class="mobile-nav-menu">
+
+            <a
+              href="/auth/login"
+              class="mobile-nav-link"
+            >
+              🔑 Login
+            </a>
+
+            <a
+              href="/auth/register"
+              class="mobile-nav-link mobile-nav-highlight"
+            >
+              ✨ Get Started Free
+            </a>
+
+          </div>
+
+
+        <% } %>
+
+      </div>
+
     </div>
-
-    </div><!-- end nav-links -->
-    
-    </div><!-- end right group -->
 
   </div>
 </nav>
 
+
 <script>
-// ── Theme toggle ──────────────────────────────────────────────────────────
+
+// ============================================================
+// THEME TOGGLE
+// ============================================================
+
 (function () {
-  const html = document.documentElement;
-  const btn  = document.getElementById('themeToggle');
-  if (localStorage.getItem('devcraft-theme') === 'light') html.classList.add('light');
-  btn?.addEventListener('click', () => {
-    const isLight = html.classList.toggle('light');
-    localStorage.setItem('devcraft-theme', isLight ? 'light' : 'dark');
-  });
+
+  const html =
+    document.documentElement;
+
+  const btn =
+    document.getElementById('themeToggle');
+
+  if (
+    localStorage.getItem('devcraft-theme') === 'light'
+  ) {
+    html.classList.add('light');
+  }
+
+  btn?.addEventListener(
+    'click',
+    () => {
+
+      const isLight =
+        html.classList.toggle('light');
+
+      localStorage.setItem(
+        'devcraft-theme',
+        isLight
+          ? 'light'
+          : 'dark'
+      );
+
+    }
+  );
+
 })();
 
-// ── Hamburger ─────────────────────────────────────────────────────────────
-const navToggle = document.getElementById('navToggle');
-const navLinks  = document.getElementById('navLinks');
-navToggle?.addEventListener('click', (e) => {
-  e.stopPropagation();
-  navLinks?.classList.toggle('mobile-open');
-  navToggle.classList.toggle('active');
-});
-document.addEventListener('click', (e) => {
-  if (!navLinks?.contains(e.target) && !navToggle?.contains(e.target)) {
-    navLinks?.classList.remove('mobile-open');
-    navToggle?.classList.remove('active');
-  }
-});
 
-// ── Desktop avatar dropdown ───────────────────────────────────────────────
-const avatarBtn = document.getElementById('userAvatarBtn');
-const dropdown  = document.getElementById('userDropdown');
-if (avatarBtn && dropdown) {
-  avatarBtn.addEventListener('click', (e) => {
+// ============================================================
+// HAMBURGER MENU
+// ============================================================
+
+const navToggle =
+  document.getElementById('navToggle');
+
+const navLinks =
+  document.getElementById('navLinks');
+
+
+navToggle?.addEventListener(
+  'click',
+  (e) => {
+
     e.stopPropagation();
-    dropdown.classList.toggle('open');
-  });
-  document.addEventListener('click', () => dropdown.classList.remove('open'));
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') dropdown.classList.remove('open');
-  });
+
+    navLinks?.classList.toggle(
+      'mobile-open'
+    );
+
+    navToggle.classList.toggle(
+      'active'
+    );
+
+  }
+);
+
+
+// Close mobile menu when clicking outside
+
+document.addEventListener(
+  'click',
+  (e) => {
+
+    if (
+      !navLinks?.contains(e.target) &&
+      !navToggle?.contains(e.target)
+    ) {
+
+      navLinks?.classList.remove(
+        'mobile-open'
+      );
+
+      navToggle?.classList.remove(
+        'active'
+      );
+
+    }
+
+  }
+);
+
+
+// ============================================================
+// DESKTOP AVATAR DROPDOWN
+// ============================================================
+
+const avatarBtn =
+  document.getElementById(
+    'userAvatarBtn'
+  );
+
+const dropdown =
+  document.getElementById(
+    'userDropdown'
+  );
+
+
+if (avatarBtn && dropdown) {
+
+  avatarBtn.addEventListener(
+    'click',
+    (e) => {
+
+      e.stopPropagation();
+
+      dropdown.classList.toggle(
+        'open'
+      );
+
+    }
+  );
+
+
+  document.addEventListener(
+    'click',
+    () => {
+
+      dropdown.classList.remove(
+        'open'
+      );
+
+    }
+  );
+
+
+  document.addEventListener(
+    'keydown',
+    (e) => {
+
+      if (e.key === 'Escape') {
+
+        dropdown.classList.remove(
+          'open'
+        );
+
+      }
+
+    }
+  );
+
 }
+
 </script>

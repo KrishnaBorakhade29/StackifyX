@@ -1,68 +1,301 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <link rel="icon" type="image/jpeg" href="/stackifyx-logo.jpg">
-    <!-- Anti-flash: apply saved theme before first paint -->
-    <script>if(localStorage.getItem('devcraft-theme')==='light')document.documentElement.classList.add('light');</script>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><%= title %> — StackifyX</title>
-    <link rel="stylesheet" href="/css/style.css">
-  </head>
+<head>
+  <link rel="icon" type="image/jpeg" href="/stackifyx-logo.jpg">
+
+  <!-- Anti-flash: apply saved theme before first paint -->
+  <script>
+    if (localStorage.getItem('devcraft-theme') === 'light') {
+      document.documentElement.classList.add('light');
+    }
+  </script>
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title><%= title %> — StackifyX</title>
+
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+
 <body>
+
   <%- include('../partials/navbar') %>
 
   <div class="auth-page">
+
     <div class="auth-card">
+
+      <!-- ======================================================
+           LOGO / HEADER
+      ======================================================= -->
+
       <div class="auth-logo">
-        <img src="/stackifyx-logo.jpg" alt="StackifyX" class="auth-logo-img">
+
+        <img
+          src="/stackifyx-logo.jpg"
+          alt="StackifyX"
+          class="auth-logo-img"
+        >
+
         <h1>Welcome Back</h1>
-        <p>Sign in to your StackifyX account</p>
+
+        <p>
+          Sign in to your StackifyX account
+        </p>
+
       </div>
+
+
+      <!-- ======================================================
+           FLASH MESSAGES
+      ======================================================= -->
 
       <%- include('../partials/flash') %>
 
+
+      <!-- ======================================================
+           VALIDATION / LOGIN ERROR
+      ======================================================= -->
+
       <% if (errors && errors.length > 0) { %>
-        <div class="alert alert-error" style="margin-bottom:20px;">
+
+        <div
+          class="alert alert-error"
+          style="margin-bottom:20px;"
+        >
+
           <span class="alert-icon">!</span>
-          <span><%- errors[0].msg %></span>
+
+          <span>
+            <%- errors[0].msg %>
+          </span>
+
         </div>
+
       <% } %>
 
-      <form action="/auth/login" method="POST" novalidate>
-        <div class="form-group">
-          <label for="email">Email Address</label>
-          <input type="email" id="email" name="email"
-            value="<%= formData.email || '' %>"
-            placeholder="you@example.com"
-            required autocomplete="email">
-        </div>
 
-        <div class="form-group">
-          <label for="password" style="display:flex; justify-content:space-between; align-items:center;">
-            <span>Password</span>
-            <a href="/auth/forgot-password"
-               style="font-size:0.78rem; font-weight:600; color:var(--accent-blue); text-transform:none; letter-spacing:0;">
-              Forgot password?
-            </a>
-          </label>
-          <input type="password" id="password" name="password"
-            placeholder="Enter your password"
-            required autocomplete="current-password">
-        </div>
+      <!-- ======================================================
+           GOOGLE SIGN IN
+      ======================================================= -->
 
-        <button type="submit" class="btn btn-primary btn-block btn-lg" style="margin-top:8px;">
-          Sign In →
-        </button>
-      </form>
+      <a
+        href="/auth/google"
+        class="google-login-btn"
+        style="
+          width:100%;
+          min-height:48px;
+          display:flex;
+          align-items:center;
+          justify-content:center;
+          gap:12px;
+          padding:12px 16px;
+          margin-bottom:20px;
+          border:1px solid var(--border);
+          border-radius:var(--radius-sm);
+          background:var(--bg-elevated);
+          color:var(--text);
+          text-decoration:none;
+          font-weight:600;
+          font-size:0.95rem;
+          box-sizing:border-box;
+          transition:all 0.2s ease;
+        "
+      >
 
-      <div style="text-align:center; margin-top:24px; font-size:0.9rem; color:var(--text-muted);">
-        Don't have an account?
-        <a href="/auth/register" style="color:var(--accent-blue); font-weight:600;">Create one free</a>
+        <!-- Google G Logo -->
+        <svg
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+          aria-hidden="true"
+        >
+
+          <path
+            fill="#4285F4"
+            d="M21.35 12.23c0-.79-.07-1.55-.23-2.27H12v4.3h5.23a4.47 4.47 0 0 1-1.94 2.94v2.45h3.14c1.84-1.69 2.92-4.18 2.92-7.42z"
+          />
+
+          <path
+            fill="#34A853"
+            d="M12 21.67c2.63 0 4.84-.87 6.45-2.35l-3.14-2.45c-.87.58-1.98.92-3.31.92-2.54 0-4.69-1.72-5.46-4.03H3.3v2.53A9.75 9.75 0 0 0 12 21.67z"
+          />
+
+          <path
+            fill="#FBBC05"
+            d="M6.54 13.76a5.86 5.86 0 0 1 0-3.52V7.71H3.3a9.74 9.74 0 0 0 0 8.58l3.24-2.53z"
+          />
+
+          <path
+            fill="#EA4335"
+            d="M12 6.21c1.43 0 2.72.49 3.73 1.45l2.8-2.8C16.84 3.29 14.63 2.33 12 2.33a9.75 9.75 0 0 0-8.7 5.38l3.24 2.53C7.31 7.93 9.46 6.21 12 6.21z"
+          />
+
+        </svg>
+
+        <span>
+          Continue with Google
+        </span>
+
+      </a>
+
+
+      <!-- ======================================================
+           DIVIDER
+      ======================================================= -->
+
+      <div
+        style="
+          display:flex;
+          align-items:center;
+          gap:12px;
+          margin:20px 0;
+          color:var(--text-muted);
+          font-size:0.8rem;
+        "
+      >
+
+        <div
+          style="
+            flex:1;
+            height:1px;
+            background:var(--border);
+          "
+        ></div>
+
+        <span>OR</span>
+
+        <div
+          style="
+            flex:1;
+            height:1px;
+            background:var(--border);
+          "
+        ></div>
+
       </div>
 
-      
+
+      <!-- ======================================================
+           EMAIL / PASSWORD LOGIN
+      ======================================================= -->
+
+      <form
+        action="/auth/login"
+        method="POST"
+        novalidate
+      >
+
+        <!-- EMAIL -->
+
+        <div class="form-group">
+
+          <label for="email">
+            Email Address
+          </label>
+
+          <input
+            type="email"
+            id="email"
+            name="email"
+            value="<%= formData.email || '' %>"
+            placeholder="you@example.com"
+            required
+            autocomplete="email"
+          >
+
+        </div>
+
+
+        <!-- PASSWORD -->
+
+        <div class="form-group">
+
+          <label
+            for="password"
+            style="
+              display:flex;
+              justify-content:space-between;
+              align-items:center;
+            "
+          >
+
+            <span>
+              Password
+            </span>
+
+            <a
+              href="/auth/forgot-password"
+              style="
+                font-size:0.78rem;
+                font-weight:600;
+                color:var(--accent-blue);
+                text-transform:none;
+                letter-spacing:0;
+              "
+            >
+              Forgot password?
+            </a>
+
+          </label>
+
+          <input
+            type="password"
+            id="password"
+            name="password"
+            placeholder="Enter your password"
+            required
+            autocomplete="current-password"
+          >
+
+        </div>
+
+
+        <!-- SIGN IN -->
+
+        <button
+          type="submit"
+          class="btn btn-primary btn-block btn-lg"
+          style="margin-top:8px;"
+        >
+          Sign In →
+        </button>
+
+      </form>
+
+
+      <!-- ======================================================
+           REGISTER LINK
+      ======================================================= -->
+
+      <div
+        style="
+          text-align:center;
+          margin-top:24px;
+          font-size:0.9rem;
+          color:var(--text-muted);
+        "
+      >
+
+        Don't have an account?
+
+        <a
+          href="/auth/register"
+          style="
+            color:var(--accent-blue);
+            font-weight:600;
+          "
+        >
+          Create one free
+        </a>
+
+      </div>
+
+
     </div>
+
   </div>
+
 </body>
 </html>
