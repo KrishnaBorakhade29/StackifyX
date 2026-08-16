@@ -7,11 +7,17 @@ const { sendProjectStarted, sendProjectCompleted } = require('../utils/email');
 // @desc  User dashboard
 // @route GET /dashboard
 const userDashboard = async (req, res) => {
+  console.time('DASHBOARD TOTAL');
+
   try {
+    console.time('DASHBOARD PROJECTS');
+
     const [projects, recentProjects] = await Promise.all([
       Project.find({ user: req.session.userId }).sort({ createdAt: -1 }),
       Project.find({ user: req.session.userId }).sort({ updatedAt: -1 }).limit(3)
     ]);
+
+    console.timeEnd('DASHBOARD PROJECTS');
 
     const stats = {
       total: projects.length,
@@ -19,13 +25,25 @@ const userDashboard = async (req, res) => {
       completed: projects.filter(p => p.status === 'completed').length,
       pending: projects.filter(p => p.status === 'pending').length,
       totalPaid: projects.reduce((sum, p) => sum + (p.amountPaid || 0), 0),
-      totalDue: projects.reduce((sum, p) => sum + Math.max(0, p.price - (p.amountPaid || 0)), 0)
+      totalDue: projects.reduce(
+        (sum, p) => sum + Math.max(0, p.price - (p.amountPaid || 0)),
+        0
+      )
     };
 
     const Inquiry = require('../models/Inquiry');
-    const inquiries = await Inquiry.find({ user: req.session.userId })
+
+    console.time('DASHBOARD INQUIRIES');
+
+    const inquiries = await Inquiry.find({
+      user: req.session.userId
+    })
       .sort({ createdAt: -1 })
       .limit(5);
+
+    console.timeEnd('DASHBOARD INQUIRIES');
+
+    console.time('DASHBOARD RENDER');
 
     res.render('user/dashboard', {
       title: 'My Dashboard',
@@ -34,12 +52,26 @@ const userDashboard = async (req, res) => {
       stats,
       inquiries
     });
+
+    console.timeEnd('DASHBOARD RENDER');
+    console.timeEnd('DASHBOARD TOTAL');
+
   } catch (err) {
     console.error(err);
+
     req.flash('error', 'Failed to load dashboard.');
-    res.render('user/dashboard', { title: 'Dashboard', projects: [], allProjects: [], stats: {}, inquiries: [] });
+
+    res.render('user/dashboard', {
+      title: 'Dashboard',
+      projects: [],
+      allProjects: [],
+      stats: {},
+      inquiries: []
+    });
   }
 };
+    
+
 
 // @desc  Get single project (user)
 // @route GET /projects/:id
