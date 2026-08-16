@@ -934,22 +934,6 @@ const postForgotPassword = async (req, res) => {
       );
     }
 
-
-    // Google-only accounts do not have a password.
-    // We will handle this separately later.
-    if (!user.password) {
-
-      return res.render(
-        'auth/forgot-password',
-        {
-          title: 'Forgot Password',
-          error: null,
-          success: successMsg
-        }
-      );
-    }
-
-
     const token = rawToken();
 
     const hashed =
