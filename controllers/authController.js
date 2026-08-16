@@ -573,9 +573,7 @@ const googleLogin = (req, res) => {
     const state =
       crypto.randomBytes(32).toString('hex');
 
-
     req.session.googleOAuthState = state;
-
 
     const authorizationUrl =
       googleOAuth2Client.generateAuthUrl({
@@ -591,8 +589,27 @@ const googleLogin = (req, res) => {
         include_granted_scopes: true
       });
 
+    // IMPORTANT:
+    // Explicitly save the session before redirecting to Google.
+    req.session.save((err) => {
 
-    res.redirect(authorizationUrl);
+      if (err) {
+
+        console.error(
+          'Google OAuth session save error:',
+          err
+        );
+
+        req.flash(
+          'error',
+          'Unable to start Google sign in. Please try again.'
+        );
+
+        return res.redirect('/auth/login');
+      }
+
+      res.redirect(authorizationUrl);
+    });
 
   } catch (err) {
 
@@ -609,6 +626,8 @@ const googleLogin = (req, res) => {
     res.redirect('/auth/login');
   }
 };
+
+  
 
 
 // ============================================================
